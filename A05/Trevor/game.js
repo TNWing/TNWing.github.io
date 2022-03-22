@@ -18,10 +18,14 @@ Last revision: 2022-03-15 (BM)
 
 "use strict"; // Do NOT remove this directive!
 
-PS.score=0;
-var EnemyCount=0;
-var canTouch=true;
-var myTimer=null;
+
+var G={
+    score : 0,
+    EnemyCount : 0,
+    canTouch :true,
+    myTimer : null,
+}
+
 //gets random num [0,max)
 function getRandomInt(max) {
     return Math.floor(Math.random() * max);
@@ -39,7 +43,7 @@ PS.init = function( system, options ) {
 	// Change status line color and text
 
 	PS.statusColor( PS.COLOR_WHITE );
-	PS.statusText( "Find Enemies! Score : " + PS.score.toString());
+	PS.statusText( "Find Enemies! Score : " + G.score.toString());
 
 	let beadData={
         hasEnemy : false,
@@ -51,47 +55,46 @@ PS.init = function( system, options ) {
     PS.audioLoad("fx_scratch");
     PS.audioLoad("fx_beep");
     let spawnAmt=3;
-    while (spawnAmt>0){
+    while (spawnAmt>0){//Designates 3 beads to have enemies at the start
         let xP=getRandomInt(15);
         let yP=getRandomInt(15);
         if (!PS.data(xP,yP).hasEnemy){
-            let newData = {
+            let newData = {//beads will have a data value, which currently only contains the bool hasEnemy
                 hasEnemy : true,
             }
             PS.data(xP,yP,newData);
             spawnAmt--;
-            EnemyCount++;
+            G.EnemyCount++;
         }
     }
-    PS.timerStart(300,EnemySpawner);
+    PS.timerStart(300,EnemySpawner);//every 5 seconds, call EnemySpawner
 };
 
 PS.touch = function( x, y, data, options ) {
-    if (canTouch){
-        canTouch=false;
-        myTimer=PS.timerStart(60,resetTouch);
-        for (let iX=-1;iX<=1;iX++){
-            if (x+iX>=0 && x+iX<=14){
+    if (G.canTouch){//if the player's light is ready, then run
+        G.canTouch=false;
+        G.myTimer=PS.timerStart(60,resetTouch);//puts player's light on cooldown for 1 second
+        for (let iX=-1;iX<=1;iX++){//this gets a 3 by 3 with the clicked bead at the center
+            if (x+iX>=0 && x+iX<=14){//these if statements are to prevent errors when clicking near the edge of the grid
                 for (let iY=-1;iY<=1;iY++) {
                     if (y+iY >= 0 && y+iY <= 14) {
                         let nextData = {
                             hasEnemy: false,
                         };
-                        PS.fade(x + iX, y + iY, 0);
-                        if (PS.data(x + iX, y + iY).hasEnemy) {
+                        PS.fade(x + iX, y + iY, 0);//allows for a bead to immediately change color
+                        if (PS.data(x + iX, y + iY).hasEnemy) {//if enemy is found (green bead), increase score and play audio
 
-                            PS.score += 10;
+                            G.score += 10;
                             PS.color(x + iX, y + iY, PS.COLOR_GREEN);
                             PS.audioPlay( "fx_scratch" );
-                            PS.statusText( "Find Enemies! Score : " + PS.score.toString());
-                            EnemyCount--;
+                            PS.statusText( "Find Enemies! Score : " + G.score.toString());
+                            G.EnemyCount--;
                         }
-                        else{
+                        else{//enemy not found, then standard white bead
                             PS.color(x + iX, y + iY, PS.COLOR_WHITE); // set color to current value of data
                         }
-
                         PS.data(x + iX, y + iY, nextData);
-                        PS.fade(x + iX, y + iY, 120);
+                        PS.fade(x + iX, y + iY, 120);//bead now has delay to fade to black
                         PS.color(x + iX, y + iY, PS.COLOR_BLACK); // set color to current value of data
                     }
                 }
@@ -102,10 +105,10 @@ PS.touch = function( x, y, data, options ) {
 };
 
 
-var EnemySpawner =function(){
+var EnemySpawner =function(){//spawns enemies
     //calls itself once in a while
     let spawnAmt=0;
-    while (spawnAmt<3 && EnemyCount<20){
+    while (spawnAmt<3 && G.EnemyCount<20){//will spawn a max of 3 enemies. Will stop spawning if there are 20 or more enemies (20 beads with hasEnemy=true)
         let xP=getRandomInt(15);
         let yP=getRandomInt(15);
         if (!PS.data(xP,yP).hasEnemy){
@@ -114,18 +117,17 @@ var EnemySpawner =function(){
             }
             PS.data(xP,yP,newData);
             spawnAmt++;
-            EnemyCount++;
-            //PS.debug("SPAWNED #" + EnemyCount.toString() + "\n");
+            G.EnemyCount++;
         }
     }
     //should spawn an enemy every X seconds 60=1 sec
 }
 
-var resetTouch=function(){
-    canTouch=true;
-    PS.timerStop(myTimer);
+var resetTouch=function(){//player light cooldown. Plays audio when light is ready
+    G.canTouch=true;
+    PS.timerStop(G.myTimer);
     PS.audioPlay("fx_beep");
-    myTimer=null;
+    G.myTimer=null;
 }
 
 /*
