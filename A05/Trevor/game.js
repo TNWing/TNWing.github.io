@@ -43,7 +43,7 @@ PS.init = function( system, options ) {
 	// Change status line color and text
 
 	PS.statusColor( PS.COLOR_WHITE );
-	PS.statusText( "Find Enemies! Score : " + G.score.toString());
+	PS.statusText( "Find Grues! Score : " + G.score.toString());
 
 	let beadData={
         hasEnemy : false,
@@ -88,7 +88,7 @@ PS.touch = function( x, y, data, options ) {
                             G.score += 10;
                             PS.color(x + iX, y + iY, PS.COLOR_GREEN);
                             PS.audioPlay( "fx_scratch" );
-                            PS.statusText( "Find Enemies! Score : " + G.score.toString());
+                            PS.statusText( "Find Grues! Score : " + G.score.toString());
                             G.EnemyCount--;
                         }
                         else{//enemy not found, then standard white bead
