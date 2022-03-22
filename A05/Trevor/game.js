@@ -82,6 +82,7 @@ PS.touch = function( x, y, data, options ) {
                             hasEnemy: false,
                         };
                         PS.fade(x + iX, y + iY, 0);//allows for a bead to immediately change color
+                        PS.color(x + iX, y + iY, PS.COLOR_BLACK); // set color to current value of data
                         if (PS.data(x + iX, y + iY).hasEnemy) {//if enemy is found (green bead), increase score and play audio
 
                             G.score += 10;
