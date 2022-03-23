@@ -48,6 +48,33 @@ Any value returned is ignored.
 [options : Object] = A JavaScript object with optional data properties; see API documentation for details.
 */
 
+//Idea: game with an image made of glyphs. Clicking on a glyph can change it
+//Maybe 2 modes: glyph mode and color mode
+var G={
+    mode : -1,
+    colorIndex : 0,
+    glyphIndex : 0,
+    maxGlyphI : 6,
+    maxColorI : 4,
+    glyphs : ["|","\\","/","_","-","<",">"],
+    colors : [PS.COLOR_RED,PS.COLOR_BLUE,PS.COLOR_GREEN,PS.COLOR_BLACK,PS.COLOR_WHITE],
+    incrementIndex : function(){
+        switch(this.mode){
+            case -1:
+                this.colorIndex++;
+                if (this.colorIndex>this.maxColorI){
+                    this.colorIndex=0;
+                }
+                break;
+            case 1:
+                this.glyphIndex++;
+                if (this.glyphIndex>this.maxGlyphI){
+                    this.glyphIndex=0;
+                }
+                break;
+        }
+    }
+}
 PS.init = function( system, options ) {
 	// Uncomment the following code line
 	// to verify operation:
@@ -64,7 +91,7 @@ PS.init = function( system, options ) {
 	// Uncomment the following code line and change
 	// the x and y parameters as needed.
 
-	// PS.gridSize( 8, 8 );
+	PS.gridSize( 32, 32);
 
 	// This is also a good place to display
 	// your game title or a welcome message
@@ -72,7 +99,7 @@ PS.init = function( system, options ) {
 	// Uncomment the following code line and
 	// change the string parameter as needed.
 
-	// PS.statusText( "Game" );
+	PS.statusText( "Modify Stuff");
 
 	// Add any other initialization code you need here.
 };
@@ -92,7 +119,14 @@ PS.touch = function( x, y, data, options ) {
 	// to inspect x/y parameters:
 
 	// PS.debug( "PS.touch() @ " + x + ", " + y + "\n" );
-
+    switch(G.mode){
+        case -1:
+            PS.color(x,y,G.colors[G.colorIndex]);
+            break;
+        case 1:
+            PS.glyph(x,y,G.glyphs[G.glyphIndex]);
+            break;
+    }
 	// Add code here for mouse clicks/touches
 	// over a bead.
 };
@@ -175,11 +209,19 @@ This function doesn't have to do anything. Any value returned is ignored.
 [ctrl : Boolean] = true if control key is held down, else false.
 [options : Object] = A JavaScript object with optional data properties; see API documentation for details.
 */
-
+//
 PS.keyDown = function( key, shift, ctrl, options ) {
 	// Uncomment the following code line to inspect first three parameters:
-
-	// PS.debug( "PS.keyDown(): key=" + key + ", shift=" + shift + ", ctrl=" + ctrl + "\n" );
+    switch(key){
+        case 32:
+            PS.debug("Mode is now " + G.mode + "\n");
+            G.mode*=-1;
+            break;
+        case 9://index change
+            G.incrementIndex();
+            break;
+    }
+	PS.debug( "PS.keyDown(): key=" + key + ", shift=" + shift + ", ctrl=" + ctrl + "\n" );
 
 	// Add code here for when a key is pressed.
 };
