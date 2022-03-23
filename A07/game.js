@@ -283,8 +283,8 @@ PS.keyDown = function( key, shift, ctrl, options ) {
 	// Uncomment the following code line to inspect first three parameters:
     switch(key){
         case 32:
-            PS.debug("Mode is now " + G.mode + "\n");
             G.mode*=-1;
+            G.resetStatus();
             break;
         case 9://index change
             G.incrementIndex();
