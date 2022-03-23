@@ -157,7 +157,7 @@ PS.init = function( system, options ) {
 	// default dimensions (8 x 8).
 	// Uncomment the following code line and change
 	// the x and y parameters as needed.
-    PS.statusText("Color:" + G.printCurrentColor() + " Mode:" + G.printCurrentMode()+" H for Help");
+
 	PS.gridSize( 20, 20);
     PS.glyphScale (PS.ALL, PS.ALL, 100);
 	// This is also a good place to display
@@ -166,7 +166,7 @@ PS.init = function( system, options ) {
 	// Uncomment the following code line and
 	// change the string parameter as needed.
 
-	PS.statusText( "Modify Stuff");
+    PS.statusText("Color:" + G.printCurrentColor() + " Mode:" + G.printCurrentMode()+" H for Help");
 
 	// Add any other initialization code you need here.
 };
