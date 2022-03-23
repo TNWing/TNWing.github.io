@@ -25,13 +25,35 @@ m
 <
 
 LEFT CHEEK:
-\ * @ ( = 0x2665
+\ 
+* 
+@ 
+( 
+= 
+0x2665
+BLANK
 
 RIGHT CHEEK:
-\ * @ ) = 0x2665
+\ 
+* 
+@ 
+) 
+= 
+0x2665
+BLANK
 
 LEFT BROW:
-\ - ~ _ 0x23fa
+\ 
+- 
+~ 
+_ 
+0x23fa
+BLANK
 
 RIGHT BROW:
-/ - ~ _ 0x23fa
+/ 
+- 
+~ 
+_ 
+0x23fa
+BLANK
