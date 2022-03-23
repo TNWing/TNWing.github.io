@@ -62,8 +62,11 @@ var G={
     colors : [PS.COLOR_RED,PS.COLOR_BLUE,PS.COLOR_GREEN,PS.COLOR_BLACK,PS.COLOR_WHITE],
     resetStatus : function(){
         PS.statusText("Color:" + G.printCurrentColor() + " Mode:" + G.printCurrentMode()+" H for Help");
-        PS.timerStop(G.myTimer);
-        G.myTimer="";
+        if (G.myTimer!=""){
+            PS.timerStop(G.myTimer);
+            G.myTimer="";
+        }
+
     },
     printCurrentMode:function(){
         let modeName="";
@@ -167,7 +170,12 @@ PS.init = function( system, options ) {
 	// change the string parameter as needed.
 
     PS.statusText("Color:" + G.printCurrentColor() + " Mode:" + G.printCurrentMode()+" H for Help");
+    //make face
 
+    //default data is 0
+    for (let i=1;i<7;i++){//eye,mouth,left cheek, right cheek, left brow, right brow
+
+    }
 	// Add any other initialization code you need here.
 };
 
