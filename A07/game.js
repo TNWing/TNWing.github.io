@@ -92,7 +92,7 @@ PS.init = function( system, options ) {
 	// the x and y parameters as needed.
 
 	PS.gridSize( 32, 32);
-
+    PS.glyphScale (PS.ALL, PS.ALL, PS.DEFAULT);
 	// This is also a good place to display
 	// your game title or a welcome message
 	// in the status line above the grid.
