@@ -51,19 +51,85 @@ Any value returned is ignored.
 //Idea: game with an image made of glyphs. Clicking on a glyph can change it
 //Maybe 2 modes: glyph mode and color mode
 var G={
+    myTimer : "",
     mode : -1,
     colorIndex : 0,
     glyphIndex : 0,
     maxGlyphI : 6,
     maxColorI : 4,
-    glyphs : ["|","\\","/","_","-","<",">"],
+    generalGlyphs : ["|","\\","/","_","-","<",">"],//general glyphs
+    eyeGlyphs:["@","'","*","$","0","o",0x0298,0x03A6,0x03f4,0x03C3,"-"],
     colors : [PS.COLOR_RED,PS.COLOR_BLUE,PS.COLOR_GREEN,PS.COLOR_BLACK,PS.COLOR_WHITE],
+    resetStatus : function(){
+        PS.statusText("Color:" + G.printCurrentColor() + " Mode:" + G.printCurrentMode()+" H for Help");
+        PS.timerStop(G.myTimer);
+        G.myTimer="";
+    },
+    printCurrentMode:function(){
+        let modeName="";
+        switch (this.mode){
+            case -1:
+                modeName = "Color"
+                break;
+            case 1:
+                modeName = "Glyph"
+                break;
+        }
+        return modeName;
+    },
+    printCurrentColor : function (){
+        let colorName="";
+        switch (this.colorIndex){
+            case 0:
+                colorName="Red";
+                break;
+            case 1:
+                colorName="Blue";
+                break;
+            case 2:
+                colorName="Green";
+                break;
+            case 3:
+                colorName="Black";
+                break;
+            case 4:
+                colorName="White";
+                break;
+        }
+        return colorName;
+    },
     incrementIndex : function(){
         switch(this.mode){
             case -1:
                 this.colorIndex++;
                 if (this.colorIndex>this.maxColorI){
                     this.colorIndex=0;
+                }
+                let colorName="";
+                switch (this.colorIndex){
+                    case 0:
+                        colorName="Red";
+                        break;
+                    case 1:
+                        colorName="Blue";
+                        break;
+                    case 2:
+                        colorName="Green";
+                        break;
+                    case 3:
+                        colorName="Black";
+                        break;
+                    case 4:
+                        colorName="White";
+                        break;
+                }
+                PS.statusText("NOW USING COLOR " + this.printCurrentColor());
+                if (this.myTimer!=""){
+                    PS.timerStop(this.myTimer);
+                    this.myTimer=PS.timerStart(120,this.resetStatus);
+                }
+                else{//its null
+                    this.myTimer=PS.timerStart(120,this.resetStatus);
                 }
                 break;
             case 1:
@@ -73,7 +139,8 @@ var G={
                 }
                 break;
         }
-    }
+    },
+
 }
 PS.init = function( system, options ) {
 	// Uncomment the following code line
@@ -119,12 +186,14 @@ PS.touch = function( x, y, data, options ) {
 	// to inspect x/y parameters:
 
 	// PS.debug( "PS.touch() @ " + x + ", " + y + "\n" );
+    //each bead will have a value det what "face part" it is (mouth, eye, brow, cheek, none)
     switch(G.mode){
         case -1:
             PS.color(x,y,G.colors[G.colorIndex]);
             break;
         case 1:
-            PS.glyph(x,y,G.glyphs[G.glyphIndex]);
+            PS.glyph(x,y,G.generalGlyphs[G.glyphIndex]);
+            //PS.glyphC
             break;
     }
 	// Add code here for mouse clicks/touches
@@ -219,6 +288,13 @@ PS.keyDown = function( key, shift, ctrl, options ) {
             break;
         case 9://index change
             G.incrementIndex();
+            break;
+        case 72://help
+        case 104:
+            if (G.myTimer==""){
+                PS.statusText("Tab:Switch Modes Spacebar:Change Color");
+                G.myTimer=PS.timerStart(120,G.resetStatus);
+            }
             break;
     }
 	PS.debug( "PS.keyDown(): key=" + key + ", shift=" + shift + ", ctrl=" + ctrl + "\n" );
