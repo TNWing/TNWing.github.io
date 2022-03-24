@@ -52,20 +52,23 @@ Any value returned is ignored.
 //Maybe 2 modes: glyph mode and color mode
 var G={
     myTimer : "",
-    mode : -1,
+    mode : 1,
     colorIndex : 0,
     glyphIndex : 0,
     maxGlyphI : 6,
     maxColorI : 4,
-    generalGlyphs : ["|","\\","/","_","-","<",">"],//general glyphs
     eyeGlyphs:["@","'","*","$","0","o",0x0298,0x03A6,0x03f4,0x03C3,"-"],
     mouthGlyphs:["_","-","w","v","n","m","/","=",">","<"],
+    lCheekGlyphs:["\\","*","@","(","=",0x2665,""],
+    rCheekGlyphs:["/","*","@",")","=",0x2665,""],
+    lBrowGlyphs:["\\","-","~","_",0x23fa,""],
+    rBrowGlyphs:["/","-","~","_",0x23fa,""],
     colors : [PS.COLOR_RED,PS.COLOR_BLUE,PS.COLOR_GREEN,PS.COLOR_BLACK,PS.COLOR_WHITE],
     resetStatus : function(){
-        PS.statusText("Color:" + G.printCurrentColor() + " Mode:" + G.printCurrentMode()+" H for Help");
+        //PS.statusText("Color:" + G.printCurrentColor() + " Mode:" + G.printCurrentMode()+" H for Help");
         if (G.myTimer!=""){
-            PS.timerStop(G.myTimer);
-            G.myTimer="";
+            //PS.timerStop(G.myTimer);
+            //G.myTimer="";
         }
 
     },
@@ -146,36 +149,33 @@ var G={
     },
 }
 PS.init = function( system, options ) {
-	// Uncomment the following code line
-	// to verify operation:
-
-	// PS.debug( "PS.init() called\n" );
-
-	// This function should normally begin
-	// with a call to PS.gridSize( x, y )
-	// where x and y are the desired initial
-	// dimensions of the grid.
-	// Call PS.gridSize() FIRST to avoid problems!
-	// The sample call below sets the grid to the
-	// default dimensions (8 x 8).
-	// Uncomment the following code line and change
-	// the x and y parameters as needed.
-
-	PS.gridSize( 14, 14);
+	PS.gridSize(5, 5);
     PS.glyphScale (PS.ALL, PS.ALL, 100);
-	// This is also a good place to display
-	// your game title or a welcome message
-	// in the status line above the grid.
-	// Uncomment the following code line and
-	// change the string parameter as needed.
-
-    PS.statusText("Color:" + G.printCurrentColor() + " Mode:" + G.printCurrentMode()+" H for Help");
+    PS.statusText("Go");
     //make face
-
     //default data is 0
-    for (let i=1;i<7;i++){//eye,mouth,left cheek, right cheek, left brow, right brow
+    PS.data(PS.ALL,PS.ALL,[0,0]);
 
-    }
+    PS.data(1,1,[6,1]);
+    PS.glyph(1,1,"-");
+
+    PS.data(3,1,[5,1]);
+    PS.glyph(3,1,"-");
+
+    PS.data(1,2,[1,1]);
+    PS.glyph(1,2,"'");
+
+    PS.data(3,2,[1,1]);
+    PS.glyph(3,2,"'");
+
+    PS.data(0,3,[4,4]);
+    PS.glyph(0,3,"=");
+
+    PS.data(4,3,[3,4]);
+    PS.glyph(4,3,"=");
+
+    PS.data(2,3,[2,3]);
+    PS.glyph(2,3,"v");
 	// Add any other initialization code you need here.
 };
 
@@ -197,11 +197,65 @@ PS.touch = function( x, y, data, options ) {
 	// PS.debug( "PS.touch() @ " + x + ", " + y + "\n" );
     //each bead will have a value det what "face part" it is (mouth, eye, brow, cheek, none)
     switch(G.mode){
-        case -1:
-            PS.color(x,y,G.colors[G.colorIndex]);
-            break;
         case 1:
-            PS.glyph(x,y,G.generalGlyphs[G.glyphIndex]);
+            let arr = [0,0];
+            arr=PS.data(x,y);
+            switch(arr[0]){
+                case 1: {
+                    let ind=arr[1]+1;
+                    if (ind>10){
+                        ind=0;
+                    }
+                    PS.data(x,y,[1,ind]);
+                    PS.glyph(x,y,G.eyeGlyphs[ind]);
+                    break;
+                }
+                case 2:{
+                    let ind=arr[1]+1;
+                    if (ind>9){
+                        ind=0;
+                    }
+                    PS.data(x,y,[2,ind]);
+                    PS.glyph(x,y,G.mouthGlyphs[ind]);
+                    break;
+                }
+                case 3:{
+                    let ind=arr[1]+1;
+                    if (ind>6){
+                        ind=0;
+                    }
+                    PS.data(x,y,[3,ind]);
+                    PS.glyph(x,y,G.lCheekGlyphs[ind]);
+                    break;
+                }
+                case 4:{
+                    let ind=arr[1]+1;
+                    if (ind>6){
+                        ind=0;
+                    }
+                    PS.data(x,y,[4,ind]);
+                    PS.glyph(x,y,G.rCheekGlyphs[ind]);
+                    break;
+                }
+                case 5:{
+                    let ind=arr[1]+1;
+                    if (ind>5){
+                        ind=0;
+                    }
+                    PS.data(x,y,[5,ind]);
+                    PS.glyph(x,y,G.lBrowGlyphs[ind]);
+                    break;
+                }
+                case 6:{
+                    let ind=arr[1]+1;
+                    if (ind>5){
+                        ind=0;
+                    }
+                    PS.data(x,y,[6,ind]);
+                    PS.glyph(x,y,G.rBrowGlyphs[ind]);
+                    break;
+                }
+            }
             //PS.glyphC
             break;
     }
@@ -292,18 +346,21 @@ PS.keyDown = function( key, shift, ctrl, options ) {
 	// Uncomment the following code line to inspect first three parameters:
     switch(key){
         case 32:
-            G.mode*=-1;
-            G.resetStatus();
+            //G.mode*=-1;
+            //G.resetStatus();
             break;
         case 9://index change
-            G.incrementIndex();
+            //G.incrementIndex();
             break;
         case 72://help
         case 104:
+            /*
             if (G.myTimer==""){
                 PS.statusText("Tab:Switch Modes Spacebar:Change Color");
                 G.myTimer=PS.timerStart(120,G.resetStatus);
             }
+
+             */
             break;
     }
 	PS.debug( "PS.keyDown(): key=" + key + ", shift=" + shift + ", ctrl=" + ctrl + "\n" );
