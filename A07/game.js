@@ -59,6 +59,7 @@ var G={
     maxColorI : 4,
     generalGlyphs : ["|","\\","/","_","-","<",">"],//general glyphs
     eyeGlyphs:["@","'","*","$","0","o",0x0298,0x03A6,0x03f4,0x03C3,"-"],
+    mouthGlyphs:["_","-","w","v","n","m","/","=",">","<"],
     colors : [PS.COLOR_RED,PS.COLOR_BLUE,PS.COLOR_GREEN,PS.COLOR_BLACK,PS.COLOR_WHITE],
     resetStatus : function(){
         PS.statusText("Color:" + G.printCurrentColor() + " Mode:" + G.printCurrentMode()+" H for Help");
@@ -143,7 +144,6 @@ var G={
                 break;
         }
     },
-
 }
 PS.init = function( system, options ) {
 	// Uncomment the following code line
@@ -161,7 +161,7 @@ PS.init = function( system, options ) {
 	// Uncomment the following code line and change
 	// the x and y parameters as needed.
 
-	PS.gridSize( 20, 20);
+	PS.gridSize( 14, 14);
     PS.glyphScale (PS.ALL, PS.ALL, 100);
 	// This is also a good place to display
 	// your game title or a welcome message
@@ -178,6 +178,7 @@ PS.init = function( system, options ) {
     }
 	// Add any other initialization code you need here.
 };
+
 
 /*
 PS.touch ( x, y, data, options )
