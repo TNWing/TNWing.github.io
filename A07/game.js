@@ -152,6 +152,10 @@ PS.init = function( system, options ) {
 	PS.gridSize(5, 5);
     PS.glyphScale (PS.ALL, PS.ALL, 100);
     PS.statusText("Go");
+    PS.audioLoad("fx_pop");
+    PS.audioLoad("fx_click");
+    PS.audioLoad("fx_bloop");
+    PS.audioLoad("fx_drip2");
     //make face
     //default data is 0
     PS.data(PS.ALL,PS.ALL,[0,0]);
@@ -162,16 +166,16 @@ PS.init = function( system, options ) {
     PS.data(3,1,[5,1]);
     PS.glyph(3,1,"-");
 
-    PS.data(1,2,[1,1]);
+    PS.data(1,2,[1,1]);//eyes
     PS.glyph(1,2,"'");
 
     PS.data(3,2,[1,1]);
     PS.glyph(3,2,"'");
 
-    PS.data(0,3,[4,4]);
+    PS.data(0,3,[3,4]);//cheeks
     PS.glyph(0,3,"=");
 
-    PS.data(4,3,[3,4]);
+    PS.data(4,3,[4,4]);
     PS.glyph(4,3,"=");
 
     PS.data(2,3,[2,3]);
@@ -208,6 +212,7 @@ PS.touch = function( x, y, data, options ) {
                     }
                     PS.data(x,y,[1,ind]);
                     PS.glyph(x,y,G.eyeGlyphs[ind]);
+                    PS.audioPlay("fx_click");
                     break;
                 }
                 case 2:{
@@ -217,6 +222,7 @@ PS.touch = function( x, y, data, options ) {
                     }
                     PS.data(x,y,[2,ind]);
                     PS.glyph(x,y,G.mouthGlyphs[ind]);
+                    PS.audioPlay("fx_pop");
                     break;
                 }
                 case 3:{
@@ -226,6 +232,7 @@ PS.touch = function( x, y, data, options ) {
                     }
                     PS.data(x,y,[3,ind]);
                     PS.glyph(x,y,G.lCheekGlyphs[ind]);
+                    PS.audioPlay("fx_bloop");
                     break;
                 }
                 case 4:{
@@ -235,6 +242,7 @@ PS.touch = function( x, y, data, options ) {
                     }
                     PS.data(x,y,[4,ind]);
                     PS.glyph(x,y,G.rCheekGlyphs[ind]);
+                    PS.audioPlay("fx_bloop");
                     break;
                 }
                 case 5:{
@@ -244,6 +252,7 @@ PS.touch = function( x, y, data, options ) {
                     }
                     PS.data(x,y,[5,ind]);
                     PS.glyph(x,y,G.lBrowGlyphs[ind]);
+                    PS.audioPlay("fx_drip2");
                     break;
                 }
                 case 6:{
@@ -253,6 +262,7 @@ PS.touch = function( x, y, data, options ) {
                     }
                     PS.data(x,y,[6,ind]);
                     PS.glyph(x,y,G.rBrowGlyphs[ind]);
+                    PS.audioPlay("fx_drip2");
                     break;
                 }
             }
