@@ -158,34 +158,26 @@ PS.init = function( system, options ) {
     PS.audioLoad("fx_drip2");
     //make face
     //default data is 0
-    PS.color(PS.ALL,PS.ALL,PS.COLOR_YELLOW);
     PS.data(PS.ALL,PS.ALL,[0,0]);
 
-    PS.color(1,1,PS.COLOR_CYAN);
     PS.data(1,1,[6,1]);
     PS.glyph(1,1,"-");
 
-    PS.color(3,1,PS.COLOR_CYAN);
     PS.data(3,1,[5,1]);
     PS.glyph(3,1,"-");
 
-    PS.color(1,2,PS.COLOR_CYAN);
     PS.data(1,2,[1,1]);//eyes
     PS.glyph(1,2,"'");
 
-    PS.color(3,2,PS.COLOR_CYAN);
     PS.data(3,2,[1,1]);
     PS.glyph(3,2,"'");
 
-    PS.color(0,3,PS.COLOR_CYAN);
     PS.data(0,3,[3,4]);//cheeks
     PS.glyph(0,3,"=");
 
-    PS.color(4,3,PS.COLOR_CYAN);
     PS.data(4,3,[4,4]);
     PS.glyph(4,3,"=");
 
-    PS.color(2,3,PS.COLOR_CYAN);
     PS.data(2,3,[2,3]);
     PS.glyph(2,3,"v");
 	// Add any other initialization code you need here.
