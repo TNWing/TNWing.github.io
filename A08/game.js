@@ -77,7 +77,7 @@ var G={
         switch(type){
             case 1:{
                 if (glyph=="-" && Math.floor(Math.random()*5)==0 && G.myTimer==""){
-                    PS.statusText("Doctor? I don't think they can open their eyes anymore.");
+                    PS.statusText("Doc? I don't think they can open their eyes.");
                     G.myTimer=PS.timerStart(90,G.resetStatus);
                 }
                 break;
