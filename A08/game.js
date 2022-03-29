@@ -65,93 +65,68 @@ var G={
     rBrowGlyphs:["/","-","~","_",0x23fa,""],
     colors : [PS.COLOR_RED,PS.COLOR_BLUE,PS.COLOR_GREEN,PS.COLOR_BLACK,PS.COLOR_WHITE],
     resetStatus : function(){
-        //PS.statusText("Color:" + G.printCurrentColor() + " Mode:" + G.printCurrentMode()+" H for Help");
+        PS.statusText("");
         if (G.myTimer!=""){
-            //PS.timerStop(G.myTimer);
-            //G.myTimer="";
+            PS.timerStop(G.myTimer);
+            G.myTimer="";
         }
 
     },
-    printCurrentMode:function(){
-        let modeName="";
-        switch (this.mode){
-            case -1:
-                modeName = "Color"
+    //will randomly update the status line with lines based on glyph change
+    randomStatus : function(type, glyph){
+        switch(type){
+            case 1:{
+                if (glyph=="-" && Math.floor(Math.random()*5)==0 && G.myTimer==""){
+                    PS.statusText("Doctor? I don't think they can open their eyes anymore.");
+                    G.myTimer=PS.timerStart(90,G.resetStatus);
+                }
                 break;
-            case 1:
-                modeName = "Glyph"
+            }
+            case 2:{
                 break;
-        }
-        return modeName;
-    },
-    printCurrentColor : function (){
-        let colorName="";
-        switch (this.colorIndex){
-            case 0:
-                colorName="Red";
-                break;
-            case 1:
-                colorName="Blue";
-                break;
-            case 2:
-                colorName="Green";
-                break;
+            }
             case 3:
-                colorName="Black";
-                break;
             case 4:
-                colorName="White";
+            {
                 break;
+            }
+            case 5:
+            case 6:
+            {
+                if (glyph=="" && Math.floor(Math.random(3))==0 && G.myTimer==""){
+                    PS.statusText("D-doctor! Did you just shave their eyebrows?!");
+                    G.myTimer=PS.timerStart(90,G.resetStatus);
+                }
+                break;
+            }
         }
-        return colorName;
-    },
-    incrementIndex : function(){
-        switch(this.mode){
-            case -1:
-                this.colorIndex++;
-                if (this.colorIndex>this.maxColorI){
-                    this.colorIndex=0;
+        if (G.myTimer=="" && Math.floor(Math.random()*7)==0){
+            let r=Math.floor(Math.random()*3);
+            switch(r){
+                case 0:{
+                    PS.statusText("Aww, that's a cute look!");
+                    G.myTimer=PS.timerStart(90,G.resetStatus);
+                    break;
                 }
-                let colorName="";
-                switch (this.colorIndex){
-                    case 0:
-                        colorName="Red";
-                        break;
-                    case 1:
-                        colorName="Blue";
-                        break;
-                    case 2:
-                        colorName="Green";
-                        break;
-                    case 3:
-                        colorName="Black";
-                        break;
-                    case 4:
-                        colorName="White";
-                        break;
+                case 1:{
+                    PS.statusText("Are you sure you know what you're doing?");
+                    G.myTimer=PS.timerStart(90,G.resetStatus);
+                    break;
                 }
-                PS.statusText("NOW USING COLOR " + this.printCurrentColor());
-                if (this.myTimer!=""){
-                    PS.timerStop(this.myTimer);
-                    this.myTimer=PS.timerStart(120,this.resetStatus);
+                case 2:{
+                    PS.statusText("Fashionable!");
+                    G.myTimer=PS.timerStart(90,G.resetStatus);
+                    break;
                 }
-                else{//its null
-                    this.myTimer=PS.timerStart(120,this.resetStatus);
-                }
-                break;
-            case 1:
-                this.glyphIndex++;
-                if (this.glyphIndex>this.maxGlyphI){
-                    this.glyphIndex=0;
-                }
-                break;
+
+            }
         }
     },
 }
 PS.init = function( system, options ) {
+    PS.statusText("");
 	PS.gridSize(5, 5);
     PS.glyphScale (PS.ALL, PS.ALL, 100);
-    PS.statusText("Go");
     PS.audioLoad("fx_pop");
     PS.audioLoad("fx_click");
     PS.audioLoad("fx_bloop");
@@ -216,74 +191,75 @@ PS.touch = function( x, y, data, options ) {
 
 	// PS.debug( "PS.touch() @ " + x + ", " + y + "\n" );
     //each bead will have a value det what "face part" it is (mouth, eye, brow, cheek, none)
-    switch(G.mode){
-        case 1:
-            let arr = [0,0];
-            arr=PS.data(x,y);
-            switch(arr[0]){
-                case 1: {
-                    let ind=arr[1]+1;
-                    if (ind>10){
-                        ind=0;
-                    }
-                    PS.data(x,y,[1,ind]);
-                    PS.glyph(x,y,G.eyeGlyphs[ind]);
-                    PS.audioPlay("fx_click");
-                    break;
-                }
-                case 2:{
-                    let ind=arr[1]+1;
-                    if (ind>9){
-                        ind=0;
-                    }
-                    PS.data(x,y,[2,ind]);
-                    PS.glyph(x,y,G.mouthGlyphs[ind]);
-                    PS.audioPlay("fx_pop");
-                    break;
-                }
-                case 3:{
-                    let ind=arr[1]+1;
-                    if (ind>6){
-                        ind=0;
-                    }
-                    PS.data(x,y,[3,ind]);
-                    PS.glyph(x,y,G.lCheekGlyphs[ind]);
-                    PS.audioPlay("fx_bloop");
-                    break;
-                }
-                case 4:{
-                    let ind=arr[1]+1;
-                    if (ind>6){
-                        ind=0;
-                    }
-                    PS.data(x,y,[4,ind]);
-                    PS.glyph(x,y,G.rCheekGlyphs[ind]);
-                    PS.audioPlay("fx_bloop");
-                    break;
-                }
-                case 5:{
-                    let ind=arr[1]+1;
-                    if (ind>5){
-                        ind=0;
-                    }
-                    PS.data(x,y,[5,ind]);
-                    PS.glyph(x,y,G.lBrowGlyphs[ind]);
-                    PS.audioPlay("fx_drip2");
-                    break;
-                }
-                case 6:{
-                    let ind=arr[1]+1;
-                    if (ind>5){
-                        ind=0;
-                    }
-                    PS.data(x,y,[6,ind]);
-                    PS.glyph(x,y,G.rBrowGlyphs[ind]);
-                    PS.audioPlay("fx_drip2");
-                    break;
-                }
+    let arr = [0,0];
+    arr=PS.data(x,y);
+    switch(arr[0]){
+        case 1: {
+            let ind=arr[1]+1;
+            if (ind>10){
+                ind=0;
             }
-            //PS.glyphC
+            PS.data(x,y,[1,ind]);
+            PS.glyph(x,y,G.eyeGlyphs[ind]);
+            PS.audioPlay("fx_click");
+            G.randomStatus(1,G.eyeGlyphs[ind]);
             break;
+        }
+        case 2:{
+            let ind=arr[1]+1;
+            if (ind>9){
+                ind=0;
+            }
+            PS.data(x,y,[2,ind]);
+            PS.glyph(x,y,G.mouthGlyphs[ind]);
+            PS.audioPlay("fx_pop");
+            G.randomStatus(2,G.mouthGlyphs[ind]);
+            break;
+        }
+        case 3:{
+            let ind=arr[1]+1;
+            if (ind>6){
+                ind=0;
+            }
+            PS.data(x,y,[3,ind]);
+            PS.glyph(x,y,G.lCheekGlyphs[ind]);
+            PS.audioPlay("fx_bloop");
+            G.randomStatus(3,G.lCheekGlyphs[ind]);
+            break;
+        }
+        case 4:{
+            let ind=arr[1]+1;
+            if (ind>6){
+                ind=0;
+            }
+            PS.data(x,y,[4,ind]);
+            PS.glyph(x,y,G.rCheekGlyphs[ind]);
+            PS.audioPlay("fx_bloop");
+            G.randomStatus(4,G.rCheekGlyphs[ind]);
+            break;
+        }
+        case 5:{
+            let ind=arr[1]+1;
+            if (ind>5){
+                ind=0;
+            }
+            PS.data(x,y,[5,ind]);
+            PS.glyph(x,y,G.lBrowGlyphs[ind]);
+            PS.audioPlay("fx_drip2");
+            G.randomStatus(5,G.lBrowGlyphs[ind]);
+            break;
+        }
+        case 6:{
+            let ind=arr[1]+1;
+            if (ind>5){
+                ind=0;
+            }
+            PS.data(x,y,[6,ind]);
+            PS.glyph(x,y,G.rBrowGlyphs[ind]);
+            PS.audioPlay("fx_drip2");
+            G.randomStatus(6,G.rBrowGlyphs[ind]);
+            break;
+        }
     }
 	// Add code here for mouse clicks/touches
 	// over a bead.
