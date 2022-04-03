@@ -47,7 +47,7 @@ Any value returned is ignored.
 [system : Object] = A JavaScript object containing engine and host platform information properties; see API documentation for details.
 [options : Object] = A JavaScript object with optional data properties; see API documentation for details.
 */
-//const fs = require('fs')
+var fs = require('fs');
 
 PS.init = function( system, options ) {
 	// Uncomment the following code line
