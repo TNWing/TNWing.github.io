@@ -47,10 +47,9 @@ Any value returned is ignored.
 [system : Object] = A JavaScript object containing engine and host platform information properties; see API documentation for details.
 [options : Object] = A JavaScript object with optional data properties; see API documentation for details.
 */
-var fs = require('fs');
 
-
-var test=function (err,data){
+import {readFile} from 'fs';
+var test=function (data){
 
 }
 PS.init = function( system, options ) {
@@ -71,7 +70,7 @@ PS.init = function( system, options ) {
 
 	PS.gridSize(4, 4);
     let file='./levels/1.txt';
-    fs.readFile(file,test(err, data));
+    readFile(file,(err,data)=>test(data));
 	// This is also a good place to display
 	// your game title or a welcome message
 	// in the status line above the grid.
