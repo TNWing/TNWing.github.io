@@ -47,41 +47,133 @@ Any value returned is ignored.
 [system : Object] = A JavaScript object containing engine and host platform information properties; see API documentation for details.
 [options : Object] = A JavaScript object with optional data properties; see API documentation for details.
 */
-const fs=require('fs');
-var fr={
-	readBeadData : function (levelNum){
-		let file="./levels/" + levelNum.toString() + ".txt";
-		PS.statusText(file);
-	},
+
+//Idea: game with an image made of glyphs. Clicking on a glyph can change it
+//Maybe 2 modes: glyph mode and color mode
+var G={
+    myTimer : "",
+    mode : 1,
+    colorIndex : 0,
+    glyphIndex : 0,
+    maxGlyphI : 6,
+    maxColorI : 4,
+    eyeGlyphs:["@","'","*","$","0","o",0x0298,0x03A6,0x03f4,0x03C3,"-"],
+    mouthGlyphs:["_","-","w","v","n","m","/","=",">","<"],
+    lCheekGlyphs:["\\","*","@","(","=",0x2665,""],
+    rCheekGlyphs:["/","*","@",")","=",0x2665,""],
+    lBrowGlyphs:["\\","-","~","_",0x23fa,""],
+    rBrowGlyphs:["/","-","~","_",0x23fa,""],
+    colors : [PS.COLOR_RED,PS.COLOR_BLUE,PS.COLOR_GREEN,PS.COLOR_BLACK,PS.COLOR_WHITE],
+    resetStatus : function(){
+        PS.statusText("");
+        if (G.myTimer!=""){
+            PS.timerStop(G.myTimer);
+            G.myTimer="";
+        }
+
+    },
+    //will randomly update the status line with lines based on glyph change
+    randomStatus : function(type, glyph){
+        switch(type){
+            case 1:{
+                if (glyph=="-" && Math.floor(Math.random()*5)==0 && G.myTimer==""){
+                    PS.statusText("Doc? I don't think they can open their eyes.");
+                    G.myTimer=PS.timerStart(90,G.resetStatus);
+                }
+                break;
+            }
+            case 2:{
+                break;
+            }
+            case 3:
+            case 4:
+            {
+                break;
+            }
+            case 5:
+            case 6:
+            {
+                if (glyph=="" && Math.floor(Math.random(3))==0 && G.myTimer==""){
+                    PS.statusText("D-doctor! Did you just shave their eyebrows?!");
+                    G.myTimer=PS.timerStart(90,G.resetStatus);
+                }
+                break;
+            }
+        }
+        if (G.myTimer=="" && Math.floor(Math.random()*7)==0){
+            let r=Math.floor(Math.random()*3);
+            switch(r){
+                case 0:{
+                    PS.statusText("Aww, that's a cute look!");
+                    G.myTimer=PS.timerStart(90,G.resetStatus);
+                    break;
+                }
+                case 1:{
+                    PS.statusText("Are you sure you know what you're doing?");
+                    G.myTimer=PS.timerStart(90,G.resetStatus);
+                    break;
+                }
+                case 2:{
+                    PS.statusText("Fashionable!");
+                    G.myTimer=PS.timerStart(90,G.resetStatus);
+                    break;
+                }
+
+            }
+        }
+    },
 }
 PS.init = function( system, options ) {
-	// Uncomment the following code line
-	// to verify operation:
+    PS.statusText("");
+	PS.gridSize(5, 5);
+    PS.glyphScale (PS.ALL, PS.ALL, 100);
+    PS.audioLoad("fx_pop");
+    PS.audioLoad("fx_click");
+    PS.audioLoad("fx_bloop");
+    PS.audioLoad("fx_drip2");
+    //make face
+    //default data is 0
+    PS.color(PS.ALL,PS.ALL,PS.COLOR_YELLOW);
+    PS.data(PS.ALL,PS.ALL,[0,0]);
+    PS.borderColor(PS.ALL,PS.ALL,PS.COLOR_YELLOW);
 
-	// PS.debug( "PS.init() called\n" );
+    PS.color(1,1,PS.COLOR_CYAN);
+    PS.data(1,1,[6,1]);
+    PS.glyph(1,1,"-");
+    PS.borderColor(1,1,PS.COLOR_BLACK);
 
-	// This function should normally begin
-	// with a call to PS.gridSize( x, y )
-	// where x and y are the desired initial
-	// dimensions of the grid.
-	// Call PS.gridSize() FIRST to avoid problems!
-	// The sample call below sets the grid to the
-	// default dimensions (8 x 8).
-	// Uncomment the following code line and change
-	// the x and y parameters as needed.
+    PS.color(3,1,PS.COLOR_CYAN);
+    PS.data(3,1,[5,1]);
+    PS.glyph(3,1,"-");
+    PS.borderColor(3,1,PS.COLOR_BLACK);
 
-	PS.gridSize( 4, 4);
+    PS.color(1,2,PS.COLOR_CYAN);
+    PS.data(1,2,[1,1]);//eyes
+    PS.glyph(1,2,"'");
+    PS.borderColor(1,2,PS.COLOR_BLACK);
 
-	// This is also a good place to display
-	// your game title or a welcome message
-	// in the status line above the grid.
-	// Uncomment the following code line and
-	// change the string parameter as needed.
+    PS.color(3,2,PS.COLOR_CYAN);
+    PS.data(3,2,[1,1]);
+    PS.glyph(3,2,"'");
+    PS.borderColor(3,2,PS.COLOR_BLACK);
 
-	// PS.statusText( "Game" );
+    PS.color(0,3,PS.COLOR_CYAN);
+    PS.data(0,3,[3,4]);//cheeks
+    PS.glyph(0,3,"=");
+    PS.borderColor(0,3,PS.COLOR_BLACK);
 
+    PS.color(4,3,PS.COLOR_CYAN);
+    PS.data(4,3,[4,4]);
+    PS.glyph(4,3,"=");
+    PS.borderColor(4,3,PS.COLOR_BLACK);
+
+    PS.color(2,3,PS.COLOR_CYAN);
+    PS.data(2,3,[2,3]);
+    PS.glyph(2,3,"v");
+    PS.borderColor(2,3,PS.COLOR_BLACK);
 	// Add any other initialization code you need here.
 };
+
 
 /*
 PS.touch ( x, y, data, options )
@@ -98,7 +190,77 @@ PS.touch = function( x, y, data, options ) {
 	// to inspect x/y parameters:
 
 	// PS.debug( "PS.touch() @ " + x + ", " + y + "\n" );
-
+    //each bead will have a value det what "face part" it is (mouth, eye, brow, cheek, none)
+    let arr = [0,0];
+    arr=PS.data(x,y);
+    switch(arr[0]){
+        case 1: {
+            let ind=arr[1]+1;
+            if (ind>10){
+                ind=0;
+            }
+            PS.data(x,y,[1,ind]);
+            PS.glyph(x,y,G.eyeGlyphs[ind]);
+            PS.audioPlay("fx_click");
+            G.randomStatus(1,G.eyeGlyphs[ind]);
+            break;
+        }
+        case 2:{
+            let ind=arr[1]+1;
+            if (ind>9){
+                ind=0;
+            }
+            PS.data(x,y,[2,ind]);
+            PS.glyph(x,y,G.mouthGlyphs[ind]);
+            PS.audioPlay("fx_pop");
+            G.randomStatus(2,G.mouthGlyphs[ind]);
+            break;
+        }
+        case 3:{
+            let ind=arr[1]+1;
+            if (ind>6){
+                ind=0;
+            }
+            PS.data(x,y,[3,ind]);
+            PS.glyph(x,y,G.lCheekGlyphs[ind]);
+            PS.audioPlay("fx_bloop");
+            G.randomStatus(3,G.lCheekGlyphs[ind]);
+            break;
+        }
+        case 4:{
+            let ind=arr[1]+1;
+            if (ind>6){
+                ind=0;
+            }
+            PS.data(x,y,[4,ind]);
+            PS.glyph(x,y,G.rCheekGlyphs[ind]);
+            PS.audioPlay("fx_bloop");
+            G.randomStatus(4,G.rCheekGlyphs[ind]);
+            break;
+        }
+        case 5:{
+            let ind=arr[1]+1;
+            if (ind>5){
+                ind=0;
+            }
+            PS.data(x,y,[5,ind]);
+            PS.glyph(x,y,G.lBrowGlyphs[ind]);
+            PS.audioPlay("fx_drip2");
+            G.randomStatus(5,G.lBrowGlyphs[ind]);
+            break;
+        }
+        case 6:{
+            let ind=arr[1]+1;
+            if (ind>5){
+                ind=0;
+            }
+            PS.data(x,y,[6,ind]);
+            PS.glyph(x,y,G.rBrowGlyphs[ind]);
+            PS.audioPlay("fx_drip2");
+            G.randomStatus(6,G.rBrowGlyphs[ind]);
+            break;
+        }
+    }
 	// Add code here for mouse clicks/touches
 	// over a bead.
 };
@@ -181,11 +343,29 @@ This function doesn't have to do anything. Any value returned is ignored.
 [ctrl : Boolean] = true if control key is held down, else false.
 [options : Object] = A JavaScript object with optional data properties; see API documentation for details.
 */
-
+//
 PS.keyDown = function( key, shift, ctrl, options ) {
 	// Uncomment the following code line to inspect first three parameters:
+    switch(key){
+        case 32:
+            //G.mode*=-1;
+            //G.resetStatus();
+            break;
+        case 9://index change
+            //G.incrementIndex();
+            break;
+        case 72://help
+        case 104:
+            /*
+            if (G.myTimer==""){
+                PS.statusText("Tab:Switch Modes Spacebar:Change Color");
+                G.myTimer=PS.timerStart(120,G.resetStatus);
+            }
 
-	// PS.debug( "PS.keyDown(): key=" + key + ", shift=" + shift + ", ctrl=" + ctrl + "\n" );
+             */
+            break;
+    }
+	PS.debug( "PS.keyDown(): key=" + key + ", shift=" + shift + ", ctrl=" + ctrl + "\n" );
 
 	// Add code here for when a key is pressed.
 };
