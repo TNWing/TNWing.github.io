@@ -66,7 +66,8 @@ PS.init = function( system, options ) {
 	// the x and y parameters as needed.
 
 	PS.gridSize(4, 4);
-
+    let file="./levels/1.txt"
+    fs.read(file);
 	// This is also a good place to display
 	// your game title or a welcome message
 	// in the status line above the grid.
