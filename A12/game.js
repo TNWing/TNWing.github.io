@@ -206,7 +206,12 @@ PS.init = function( system, options ) {
         }
     }
     goodEdges=edgeArray;
-	// PS.statusText( "Game" );
+	PS.statusText( "Don't let it reach green!" );
+    PS.audioLoad("click1", { fileTypes: ["wav"], path: "audio/" });
+    PS.audioLoad("click2", { fileTypes: ["wav"], path: "audio/" });
+    PS.audioLoad("click3", { fileTypes: ["wav"], path: "audio/" });
+    PS.audioLoad("click4", { fileTypes: ["wav"], path: "audio/" });
+    //PS.audioLoad("click5", {  path: "audio/" });
 
 	// Add any other initialization code you need here.
 };
@@ -233,6 +238,8 @@ PS.touch = function( x, y, data, options ) {
             PS.data(x,y,arr);
             PS.color(x,y,PS.COLOR_BLACK);
             beadling.move(beadling.xcoord,beadling.ycoord);
+            //PS.audioPlay("click1", { fileTypes: ["wav"], path: "audio/" });
+            PS.audioPlay("click"+(PS.random(4)).toString(), { fileTypes: ["wav"], path: "audio/" });
         }
         else{
             PS.statusText("You can't build a wall there!");
