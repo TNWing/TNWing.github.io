@@ -63,20 +63,14 @@ var beadData={
     data:0,
     properties:0,
 }
+//creates the map
 const testArrayBD=[ [0,0],[4,0],[0,0],
                     [0,0],[0,0],[0,0],
                     [0,0],[1,0],[0,0],
                     [4,0],[0,0],[0,0],
 ]
+//0: walkable space, 1: beadling space, 4: edge (where the beadling needs to go)
 
-var U={//utility
-    calcDist:function(x1,y1,x2,y2){
-        let dist=Math.sqrt(
-            (Math.pow(x2-x1,2)) +(Math.pow(y2-y1,2))
-        );
-        return dist;
-    }
-}
 
 var beadling={
     behavior:0,
