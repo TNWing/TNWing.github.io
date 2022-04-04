@@ -65,10 +65,11 @@ var beadData={
     properties:0,
 }
 //creates the map
-const testArrayBD=[ [0,0],[4,0],[0,0],
-                    [0,0],[0,0],[0,0],
-                    [0,0],[1,0],[0,0],
-                    [4,0],[0,0],[0,0],
+const testArrayBD=[ [0,0],[4,0],[0,0],[0,0],
+                    [0,0],[0,0],[0,0],[0,0],
+                    [0,0],[0,0],[0,0],[1,0],
+                    [0,0],[0,0],[0,0],[0,0],
+                    [4,0],[0,0],[0,0],[0,0],
 ]
 //0: walkable space, 1: beadling space, 4: edge (where the beadling needs to go)
 
@@ -160,22 +161,8 @@ var behaviors={
 
 
 PS.init = function( system, options ) {
-	// Uncomment the following code line
-	// to verify operation:
-
-	// PS.debug( "PS.init() called\n" );
-
-	// This function should normally begin
-	// with a call to PS.gridSize( x, y )
-	// where x and y are the desired initial
-	// dimensions of the grid.
-	// Call PS.gridSize() FIRST to avoid problems!
-	// The sample call below sets the grid to the
-	// default dimensions (8 x 8).
-	// Uncomment the following code line and change
-	// the x and y parameters as needed.
-    xsize=3;
-    ysize=4;
+    xsize=4;
+    ysize=5;
 	PS.gridSize(xsize, ysize);
     let file='./levels/1.txt';
     //readFile(file,(err,data)=>test(data));
