@@ -60,6 +60,10 @@ var myMap = {
     pixelSize : 1, // format 1
     data:[]
 };
+var pathOptions={
+    no_diagonals :true,
+    cut_corners:false,
+};
 var beadData={
     data:0,
     properties:0,
@@ -106,10 +110,10 @@ var beadling={
 
             let closest=0;
             let beadCoord=goodEdges[0];
-            let dist=PS.pathFind(mapID,xCurrent,yCurrent,goodEdges[0][0],goodEdges[0][1]).length;
+            let dist=PS.pathFind(mapID,xCurrent,yCurrent,goodEdges[0][0],goodEdges[0][1],pathOptions).length;
             PS.debug(dist+"\n");
             for (let i=1;i<goodEdges.length;i++){
-                let val=PS.pathFind(mapID,xCurrent,yCurrent,goodEdges[i][0],goodEdges[i][1]).length;
+                let val=PS.pathFind(mapID,xCurrent,yCurrent,goodEdges[i][0],goodEdges[i][1],pathOptions).length;
                 PS.debug(val+"\n");
                 if (val < dist){
                     dist=val;
@@ -121,7 +125,7 @@ var beadling={
 
             PS.debug(xCurrent + "," + yCurrent + " going to " +
                 chosenEdge[0] + "," + chosenEdge[1] + "\n");
-            var path=PS.pathFind(mapID,xCurrent,yCurrent,chosenEdge[0],chosenEdge[1]);
+            var path=PS.pathFind(mapID,xCurrent,yCurrent,chosenEdge[0],chosenEdge[1],pathOptions);
             if (path.length==0){//bead can't find path
                 PS.debug("NO WAY THR\n");
                 goodEdges.splice(closest,1);
