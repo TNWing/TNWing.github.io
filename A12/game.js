@@ -48,10 +48,103 @@ Any value returned is ignored.
 [options : Object] = A JavaScript object with optional data properties; see API documentation for details.
 */
 
-import {readFile} from 'fs';
-var test=function (data){
-
+//import {readFile} from 'fs';
+let xsize=0;
+let ysize=0;
+var myMap = {
+    width : xsize,
+    height : ysize,
+    pixelSize : 1, // format 1
+    data:[]
+};
+var beadData={
+    data:0,
+    properties:0,
 }
+const testArrayBD=[ [0,0],[4,0],[0,0],
+                    [0,0],[0,0],[0,0],
+                    [0,0],[1,0],[0,0],
+                    [4,0],[0,0],[0,0],
+]
+
+var U={//utility
+    calcDist:function(x1,y1,x2,y2){
+        let dist=Math.sqrt(
+            (Math.pow(x2-x1,2)) +(Math.pow(y2-y1,2))
+        );
+        return dist;
+    }
+}
+
+var beadling={
+    behavior:0,
+    xcoord:0,
+    ycoord:0,
+    move:function(xCurrent,yCurrent){//have 3rd param, which consists of edges to not include
+        let closest=0;
+        let beadCoord=edgeArray[0];
+        let dist=U.calcDist(xCurrent,yCurrent,beadCoord[0],beadCoord[1]);
+        for (let i=1;i<edgeArray.length;i++){
+            let val=U.calcDist(xCurrent,yCurrent,beadCoord[0],beadCoord[1]);
+            if (val < dist){
+                dist=val;
+                closest=i;
+            }
+        }
+        let chosenEdge=edgeArray[closest];
+        myMap.width=xsize;
+        myMap.height=ysize;
+        myMap.data=[];
+        for (let yC=0;yC<ysize;yC++){
+            for(let xC=0;xC<xsize;xC++){
+                let bD=PS.data(xC,yC);
+                if (bD[0]==0 || bD[0]==1 || bD[0]==4){//claims not defined
+                    myMap.data.push(1);
+                    PS.debug(1);
+                }
+                else{
+                    myMap.data.push(0);
+                    PS.debug(0);
+                }
+                PS.debug(",");
+            }
+            PS.debug("\n");
+        }
+
+        var mapID=PS.pathMap(myMap);
+        PS.debug(xCurrent + "," + yCurrent + " going to " +
+            chosenEdge[0] + "," + chosenEdge[1] + "\n");
+        var path=PS.pathFind(mapID,xCurrent,yCurrent,chosenEdge[0],chosenEdge[1]);
+        if (path.length==0){//bead can't find path
+            PS.debug("NO WAY THR");
+            //at this point, the bead should attempt to use a different edge
+            //loop the earlier part of this func
+        }
+        else{
+            PS.color(xCurrent,yCurrent,PS.COLOR_WHITE);
+            let d=PS.data(xCurrent,yCurrent);
+            PS.data(xCurrent,yCurrent,[0,d[1]]);
+            let newX=path[0][0];
+            let newY=path[0][1];
+            PS.debug("NEW coords " + newX + "," + newY);
+            PS.debug("\n");
+            let newData=[1,PS.data(newX,newY)[1]];//error here, can't read undefined
+            PS.data(path[0][0],path[0][1],newData);
+            PS.color(newX,newY,PS.COLOR_RED);
+            this.xcoord=newX;
+            this.ycoord=newY;
+        }
+
+    }
+}
+
+var behaviors={
+    stubborn:function(currentP,dest){//use pathmap
+
+    }
+}
+
+var edgeArray=[];
 PS.init = function( system, options ) {
 	// Uncomment the following code line
 	// to verify operation:
@@ -67,16 +160,47 @@ PS.init = function( system, options ) {
 	// default dimensions (8 x 8).
 	// Uncomment the following code line and change
 	// the x and y parameters as needed.
-
-	PS.gridSize(4, 4);
+    xsize=3;
+    ysize=4;
+	PS.gridSize(xsize, ysize);
     let file='./levels/1.txt';
-    readFile(file,(err,data)=>test(data));
-	// This is also a good place to display
-	// your game title or a welcome message
-	// in the status line above the grid.
-	// Uncomment the following code line and
-	// change the string parameter as needed.
-
+    //readFile(file,(err,data)=>test(data));
+    let x=0;
+    let y=0;
+    for (let i=0;i<testArrayBD.length;i++){
+        PS.data(x,y,testArrayBD[i]);
+        switch(testArrayBD[i][0]){
+            case 0:{
+                break;
+            }
+            case 1:{
+                PS.color(x,y,PS.COLOR_RED);
+                beadling.xcoord=x;
+                beadling.ycoord=y;
+                PS.statusText(beadling.ycoord);//so bbeadling does get updated
+                break;
+            }
+            case 2:{
+                break;
+            }
+            case 3:{
+                break;
+            }
+            case 4:{
+                PS.color(x,y,PS.COLOR_GREEN);
+                edgeArray.push([x,y]);
+                break;
+            }
+            case 5:{
+                break;
+            }
+        }
+        x++;
+        if (x>=xsize){
+            x=0;
+            y++;
+        }
+    }
 	// PS.statusText( "Game" );
 
 	// Add any other initialization code you need here.
@@ -95,11 +219,21 @@ This function doesn't have to do anything. Any value returned is ignored.
 PS.touch = function( x, y, data, options ) {
 	// Uncomment the following code line
 	// to inspect x/y parameters:
-
 	// PS.debug( "PS.touch() @ " + x + ", " + y + "\n" );
-
+    let arr = [0,0];
+    arr=PS.data(x,y);
+    if (arr[0]==0){
+        arr[0]=2;
+        PS.data(x,y,arr);
+        PS.color(x,y,PS.COLOR_BLACK);
+        beadling.move(beadling.xcoord,beadling.ycoord);
+    }
+    else{
+        PS.statusText("You can't build a wall there!");
+    }
 	// Add code here for mouse clicks/touches
 	// over a bead.
+
 };
 
 /*
