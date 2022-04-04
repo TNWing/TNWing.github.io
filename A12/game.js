@@ -49,6 +49,8 @@ Any value returned is ignored.
 */
 
 //import {readFile} from 'fs';
+var edgeArray=[];//contains all edges
+var goodEdges=[];//contains all edges that are currently accessible
 let xsize=0;
 let ysize=0;
 var myMap = {
@@ -81,17 +83,6 @@ var beadling={
     xcoord:0,
     ycoord:0,
     move:function(xCurrent,yCurrent){//have 3rd param, which consists of edges to not include
-        let closest=0;
-        let beadCoord=edgeArray[0];
-        let dist=U.calcDist(xCurrent,yCurrent,beadCoord[0],beadCoord[1]);
-        for (let i=1;i<edgeArray.length;i++){
-            let val=U.calcDist(xCurrent,yCurrent,beadCoord[0],beadCoord[1]);
-            if (val < dist){
-                dist=val;
-                closest=i;
-            }
-        }
-        let chosenEdge=edgeArray[closest];
         myMap.width=xsize;
         myMap.height=ysize;
         myMap.data=[];
@@ -110,13 +101,31 @@ var beadling={
             }
             PS.debug("\n");
         }
+        let mapID=PS.pathMap(myMap);
 
-        var mapID=PS.pathMap(myMap);
+        let closest=0;
+        let beadCoord=goodEdges[0];
+        let dist=PS.pathFind(mapID,xCurrent,yCurrent,goodEdges[0][0],goodEdges[0][1]).length;
+        PS.debug(dist+"\n");
+        for (let i=1;i<goodEdges.length;i++){
+            let val=PS.pathFind(mapID,xCurrent,yCurrent,goodEdges[i][0],goodEdges[i][1]).length;
+            PS.debug(val+"\n");
+            if (val < dist){
+                dist=val;
+                closest=i;
+            }
+        }
+        PS.debug("done calc\n");
+        let chosenEdge=goodEdges[closest];
+
         PS.debug(xCurrent + "," + yCurrent + " going to " +
             chosenEdge[0] + "," + chosenEdge[1] + "\n");
         var path=PS.pathFind(mapID,xCurrent,yCurrent,chosenEdge[0],chosenEdge[1]);
         if (path.length==0){//bead can't find path
-            PS.debug("NO WAY THR");
+            PS.debug("NO WAY THR\n");
+            goodEdges.splice(closest,1);
+            //remove from goodEdges
+            this.move(xCurrent,yCurrent);
             //at this point, the bead should attempt to use a different edge
             //loop the earlier part of this func
         }
@@ -144,7 +153,7 @@ var behaviors={
     }
 }
 
-var edgeArray=[];
+
 PS.init = function( system, options ) {
 	// Uncomment the following code line
 	// to verify operation:
@@ -201,6 +210,7 @@ PS.init = function( system, options ) {
             y++;
         }
     }
+    goodEdges=edgeArray;
 	// PS.statusText( "Game" );
 
 	// Add any other initialization code you need here.
