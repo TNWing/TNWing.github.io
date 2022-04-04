@@ -53,6 +53,7 @@ var edgeArray=[];//contains all edges
 var goodEdges=[];//contains all edges that are currently accessible
 let xsize=0;
 let ysize=0;
+let gameover=-1;//-1 if game is running, 0 if lost, 1 if won
 var myMap = {
     width : xsize,
     height : ysize,
@@ -77,66 +78,76 @@ var beadling={
     xcoord:0,
     ycoord:0,
     move:function(xCurrent,yCurrent){//have 3rd param, which consists of edges to not include
-        myMap.width=xsize;
-        myMap.height=ysize;
-        myMap.data=[];
-        for (let yC=0;yC<ysize;yC++){
-            for(let xC=0;xC<xsize;xC++){
-                let bD=PS.data(xC,yC);
-                if (bD[0]==0 || bD[0]==1 || bD[0]==4){//claims not defined
-                    myMap.data.push(1);
-                    PS.debug(1);
-                }
-                else{
-                    myMap.data.push(0);
-                    PS.debug(0);
-                }
-                PS.debug(",");
-            }
-            PS.debug("\n");
-        }
-        let mapID=PS.pathMap(myMap);
-
-        let closest=0;
-        let beadCoord=goodEdges[0];
-        let dist=PS.pathFind(mapID,xCurrent,yCurrent,goodEdges[0][0],goodEdges[0][1]).length;
-        PS.debug(dist+"\n");
-        for (let i=1;i<goodEdges.length;i++){
-            let val=PS.pathFind(mapID,xCurrent,yCurrent,goodEdges[i][0],goodEdges[i][1]).length;
-            PS.debug(val+"\n");
-            if (val < dist){
-                dist=val;
-                closest=i;
-            }
-        }
-        PS.debug("done calc\n");
-        let chosenEdge=goodEdges[closest];
-
-        PS.debug(xCurrent + "," + yCurrent + " going to " +
-            chosenEdge[0] + "," + chosenEdge[1] + "\n");
-        var path=PS.pathFind(mapID,xCurrent,yCurrent,chosenEdge[0],chosenEdge[1]);
-        if (path.length==0){//bead can't find path
-            PS.debug("NO WAY THR\n");
-            goodEdges.splice(closest,1);
-            //remove from goodEdges
-            this.move(xCurrent,yCurrent);
-            //at this point, the bead should attempt to use a different edge
-            //loop the earlier part of this func
+        if (goodEdges.length<=0){
+            PS.statusText("YOU WON");
+            gameover=1;
         }
         else{
-            PS.color(xCurrent,yCurrent,PS.COLOR_WHITE);
-            let d=PS.data(xCurrent,yCurrent);
-            PS.data(xCurrent,yCurrent,[0,d[1]]);
-            let newX=path[0][0];
-            let newY=path[0][1];
-            PS.debug("NEW coords " + newX + "," + newY);
-            PS.debug("\n");
-            let newData=[1,PS.data(newX,newY)[1]];//error here, can't read undefined
-            PS.data(path[0][0],path[0][1],newData);
-            PS.color(newX,newY,PS.COLOR_RED);
-            this.xcoord=newX;
-            this.ycoord=newY;
+            myMap.width=xsize;
+            myMap.height=ysize;
+            myMap.data=[];
+            for (let yC=0;yC<ysize;yC++){
+                for(let xC=0;xC<xsize;xC++){
+                    let bD=PS.data(xC,yC);
+                    if (bD[0]==0 || bD[0]==1 || bD[0]==4){//claims not defined
+                        myMap.data.push(1);
+                        PS.debug(1);
+                    }
+                    else{
+                        myMap.data.push(0);
+                        PS.debug(0);
+                    }
+                    PS.debug(",");
+                }
+                PS.debug("\n");
+            }
+            let mapID=PS.pathMap(myMap);
+
+            let closest=0;
+            let beadCoord=goodEdges[0];
+            let dist=PS.pathFind(mapID,xCurrent,yCurrent,goodEdges[0][0],goodEdges[0][1]).length;
+            PS.debug(dist+"\n");
+            for (let i=1;i<goodEdges.length;i++){
+                let val=PS.pathFind(mapID,xCurrent,yCurrent,goodEdges[i][0],goodEdges[i][1]).length;
+                PS.debug(val+"\n");
+                if (val < dist){
+                    dist=val;
+                    closest=i;
+                }
+            }
+            PS.debug("done calc\n");
+            let chosenEdge=goodEdges[closest];
+
+            PS.debug(xCurrent + "," + yCurrent + " going to " +
+                chosenEdge[0] + "," + chosenEdge[1] + "\n");
+            var path=PS.pathFind(mapID,xCurrent,yCurrent,chosenEdge[0],chosenEdge[1]);
+            if (path.length==0){//bead can't find path
+                PS.debug("NO WAY THR\n");
+                goodEdges.splice(closest,1);
+                //remove from goodEdges
+                this.move(xCurrent,yCurrent);
+                //at this point, the bead should attempt to use a different edge
+                //loop the earlier part of this func
+            }
+            else{
+                PS.color(xCurrent,yCurrent,PS.COLOR_WHITE);
+                let d=PS.data(xCurrent,yCurrent);
+                PS.data(xCurrent,yCurrent,[0,d[1]]);
+                let newX=path[0][0];
+                let newY=path[0][1];
+                let pathVal=PS.data(newX,newY)[0];
+                let newData=[1,PS.data(newX,newY)[1]];//error here, can't read undefined
+                PS.data(path[0][0],path[0][1],newData);
+                PS.color(newX,newY,PS.COLOR_RED);
+                this.xcoord=newX;
+                this.ycoord=newY;
+                if (pathVal==4){
+                    PS.statusText("You lost!");
+                    gameover=0;
+                }
+            }
         }
+
 
     }
 }
@@ -180,7 +191,6 @@ PS.init = function( system, options ) {
                 PS.color(x,y,PS.COLOR_RED);
                 beadling.xcoord=x;
                 beadling.ycoord=y;
-                PS.statusText(beadling.ycoord);//so bbeadling does get updated
                 break;
             }
             case 2:{
@@ -224,17 +234,20 @@ PS.touch = function( x, y, data, options ) {
 	// Uncomment the following code line
 	// to inspect x/y parameters:
 	// PS.debug( "PS.touch() @ " + x + ", " + y + "\n" );
-    let arr = [0,0];
-    arr=PS.data(x,y);
-    if (arr[0]==0){
-        arr[0]=2;
-        PS.data(x,y,arr);
-        PS.color(x,y,PS.COLOR_BLACK);
-        beadling.move(beadling.xcoord,beadling.ycoord);
+    if (gameover==-1){
+        let arr = [0,0];
+        arr=PS.data(x,y);
+        if (arr[0]==0){
+            arr[0]=2;
+            PS.data(x,y,arr);
+            PS.color(x,y,PS.COLOR_BLACK);
+            beadling.move(beadling.xcoord,beadling.ycoord);
+        }
+        else{
+            PS.statusText("You can't build a wall there!");
+        }
     }
-    else{
-        PS.statusText("You can't build a wall there!");
-    }
+
 	// Add code here for mouse clicks/touches
 	// over a bead.
 
