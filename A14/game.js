@@ -206,7 +206,6 @@ var levelBuild=function(){//why is levelbuild being called const
         PS.timerStop(myTimer);
         myTimer=null;
     }
-
     gameover=-1;
     let level=null;
     resetGrid();
@@ -223,56 +222,63 @@ var levelBuild=function(){//why is levelbuild being called const
             level=levelCopy(level3);
             break;
         }
+        default:{
+            //invalid level
+        }
+    }
+    if (level!=null){
+        let x=0;
+        let y=0;
+        let size=level[0];
+        //apparently level is being overwritten
+        xsize=size[0];//6
+        ysize=size[1];//5
+        let space=0;
+        PS.gridSize(xsize, ysize);
+        for (let i=1;i<level.length;i++){
+            let data=PS.data(x,y,level[i]);
+            PS.debug(data + "  ");
+            switch(level[i][0]){
+                case 0:{
+                    space++;
+                    PS.color(x,y,PS.COLOR_WHITE);
+                    break;
+                }
+                case 1:{
+                    PS.color(x,y,PS.COLOR_RED);
+                    beadling.xcoord=x;
+                    beadling.ycoord=y;
+                    break;
+                }
+                case 2:{
+                    PS.color(x,y,PS.COLOR_BLACK);
+                    break;
+                }
+                case 3:{
+                    PS.color(x,y,PS.COLOR_GRAY);
+                    break;
+                }
+                case 4:{
+                    PS.color(x,y,PS.COLOR_GREEN);
+                    edgeArray.push([x,y]);
+                    break;
+                }
+                case 5:{
+                    break;
+                }
+            }
+            x++;
+            if (x>=xsize){
+                x=0;
+                y++;
+            }
+        }
+        goodEdges=edgeArray;
+    }
+    else{
+        PS.statusText("YOU BEAT THE GAME");
     }
 
-    let x=0;
-    let y=0;
-    let size=level[0];
-    //apparently level is being overwritten
-    xsize=size[0];//6
-    ysize=size[1];//5
-    let space=0;
-    PS.gridSize(xsize, ysize);
-    for (let i=1;i<level.length;i++){
-        let data=PS.data(x,y,level[i]);
-        PS.debug(data + "  ");
-        switch(level[i][0]){
-            case 0:{
-                space++;
-                PS.color(x,y,PS.COLOR_WHITE);
-                break;
-            }
-            case 1:{
-                PS.color(x,y,PS.COLOR_RED);
-                beadling.xcoord=x;
-                beadling.ycoord=y;
-                break;
-            }
-            case 2:{
-                PS.color(x,y,PS.COLOR_BLACK);
-                break;
-            }
-            case 3:{
-                PS.color(x,y,PS.COLOR_GRAY);
-                break;
-            }
-            case 4:{
-                PS.color(x,y,PS.COLOR_GREEN);
-                edgeArray.push([x,y]);
-                break;
-            }
-            case 5:{
-                break;
-            }
-        }
-        x++;
-        if (x>=xsize){
-            x=0;
-            y++;
-        }
-    }
-    PS.debug(space);
-    goodEdges=edgeArray;
 }
 
 PS.init = function( system, options ) {
