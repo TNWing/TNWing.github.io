@@ -49,6 +49,7 @@ Any value returned is ignored.
 */
 
 //import {readFile} from 'fs';
+var lvl=1;
 var edgeArray=[];//contains all edges
 var goodEdges=[];//contains all edges that are currently accessible
 let xsize=0;
@@ -89,6 +90,7 @@ var setColor=function(i){
     }
     return color;
 }
+var myTimer;
 var pathOptions={
     no_diagonals :true,
     cut_corners:false,
@@ -109,14 +111,18 @@ var beadling={
         if (goodEdges.length<=0){
             PS.statusText("YOU WON");
             gameover=1;
+            lvl++;
+            levelBuild(lvl);
         }
         else{
+            PS.debug("\n");
             myMap.width=xsize;
             myMap.height=ysize;
             myMap.data=[];
             for (let yC=0;yC<ysize;yC++){
                 for(let xC=0;xC<xsize;xC++){
                     let bD=PS.data(xC,yC);
+                    PS.debug(bD + " ");
                     if (bD[0]==0 || bD[0]==1 || bD[0]==3 || bD[0]==4){//can move along these things
                         myMap.data.push(1);
                     }
@@ -160,8 +166,12 @@ var beadling={
                 this.xcoord=newX;
                 this.ycoord=newY;
                 if (pathVal==4){
+                    PS.debug("HERE");
                     PS.statusText("You lost!");
                     gameover=0;
+                    myTimer=PS.timerStart ( 120, levelBuild);
+                    //lvl++;
+                    //levelBuild(lvl);
                 }
             }
         }
@@ -176,23 +186,60 @@ var behaviors={
     }
 }
 
+var resetGrid=function(){
+    PS.data(PS.ALL,PS.ALL,0);
+    PS.color(PS.ALL,PS.ALL,PS.COLOR_WHITE);
+}
 
-PS.init = function( system, options ) {
+var levelCopy=function(level){
+    var newLVL=level.slice(0);
+    for(var i =0;i< newLVL.length; i++) {
+        if (newLVL[i] instanceof Array) {
+            newLVL[i] = levelCopy(newLVL[i]);
+        }
+    }
+    return newLVL;
+}
 
+var levelBuild=function(){//why is levelbuild being called const
+    if (myTimer!=null){
+        PS.timerStop(myTimer);
+        myTimer=null;
+    }
 
-    let file='./levels/1.txt';
-    //readFile(file,(err,data)=>test(data));
+    gameover=-1;
+    let level=null;
+    resetGrid();
+    switch(lvl){
+        case 1:{
+            level=levelCopy(level1);
+            break;
+        }
+        case 2:{
+            level=levelCopy(level2);
+            break;
+        }
+        case 3:{
+            level=levelCopy(level3);
+            break;
+        }
+    }
+
     let x=0;
     let y=0;
-    let level=level3;//there are 3 levels
     let size=level[0];
+    //apparently level is being overwritten
     xsize=size[0];//6
     ysize=size[1];//5
+    let space=0;
     PS.gridSize(xsize, ysize);
     for (let i=1;i<level.length;i++){
-        PS.data(x,y,level[i]);
+        let data=PS.data(x,y,level[i]);
+        PS.debug(data + "  ");
         switch(level[i][0]){
             case 0:{
+                space++;
+                PS.color(x,y,PS.COLOR_WHITE);
                 break;
             }
             case 1:{
@@ -224,12 +271,18 @@ PS.init = function( system, options ) {
             y++;
         }
     }
+    PS.debug(space);
     goodEdges=edgeArray;
-	PS.statusText( "Don't let it reach green!" );
+}
+
+PS.init = function( system, options ) {
+    PS.statusText( "Don't let it reach green!" );
     PS.audioLoad("click1", { fileTypes: ["wav"], path: "audio/" });
     PS.audioLoad("click2", { fileTypes: ["wav"], path: "audio/" });
     PS.audioLoad("click3", { fileTypes: ["wav"], path: "audio/" });
     PS.audioLoad("click4", { fileTypes: ["wav"], path: "audio/" });
+    levelBuild(lvl);
+
     //PS.audioLoad("click5", {  path: "audio/" });
 
 	// Add any other initialization code you need here.
@@ -249,15 +302,16 @@ PS.touch = function( x, y, data, options ) {
 	// Uncomment the following code line
 	// to inspect x/y parameters:
 	// PS.debug( "PS.touch() @ " + x + ", " + y + "\n" );
-    if (gameover==-1){
-        let arr = [0,0];
-        arr=PS.data(x,y);
+    if (gameover==-1){//level is being "overwritten", the actual file isn't being touched, but levelX changes every time a wall is made
+        let arr =PS.data(x,y);
         if (arr[0]==0){
+            //so level is being overwritten by the arr func
+            PS.debug("\n\n");
+            PS.debug(level1+"\n\n");
             arr[0]=2;
-            PS.data(x,y,arr);
+            PS.debug(level1);
             PS.color(x,y,PS.COLOR_BLACK);
             beadling.move(beadling.xcoord,beadling.ycoord);
-            //PS.audioPlay("click1", { fileTypes: ["wav"], path: "audio/" });
             PS.audioPlay("click"+(PS.random(4)).toString(), { fileTypes: ["wav"], path: "audio/" });
         }
         else{
