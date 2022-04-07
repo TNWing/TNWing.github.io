@@ -33,6 +33,9 @@ You may find them useful if your development environment is configured to suppor
 If you don't use JSHint (or are using it with a configuration file), you can safely delete these two lines.
 */
 
+/* Audio credits go to these freesound users: deathpie, florian reinke, christopherderp, bbrocer, michorvath,
+breviceps, as well as the Pokemon Company */
+
 /* jshint browser : true, devel : true, esversion : 6, freeze : true */
 /* globals PS : true */
 
@@ -165,6 +168,7 @@ var beadling={
                 PS.color(newX,newY,PS.COLOR_RED);
                 this.xcoord=newX;
                 this.ycoord=newY;
+                PS.audioPlay("scurry"+(PS.random(3)).toString(), { fileTypes: ["wav"], path: "audio/" });
                 if (pathVal==4){
                     PS.debug("HERE");
                     PS.statusText("You lost!");
@@ -287,6 +291,54 @@ PS.init = function( system, options ) {
     PS.audioLoad("click2", { fileTypes: ["wav"], path: "audio/" });
     PS.audioLoad("click3", { fileTypes: ["wav"], path: "audio/" });
     PS.audioLoad("click4", { fileTypes: ["wav"], path: "audio/" });
+    PS.audioLoad("scurry1", { fileTypes: ["wav"], path: "audio/" });
+    PS.audioLoad("scurry2", { fileTypes: ["wav"], path: "audio/" });
+    PS.audioLoad("scurry3", { fileTypes: ["wav"], path: "audio/" });
+    PS.audioLoad("abomasnow", { fileTypes: ["mp3"], path: "pokemon cries/" });
+    PS.audioLoad("ampharos", { fileTypes: ["mp3"], path: "pokemon cries/" });
+    PS.audioLoad("arcanine", { fileTypes: ["mp3"], path: "pokemon cries/" });
+    PS.audioLoad("arceus", { fileTypes: ["mp3"], path: "pokemon cries/" });
+    PS.audioLoad("azumarill", { fileTypes: ["mp3"], path: "pokemon cries/" });
+    PS.audioLoad("bayleef", { fileTypes: ["mp3"], path: "pokemon cries/" });
+    PS.audioLoad("bellsprout", { fileTypes: ["mp3"], path: "pokemon cries/" });
+    PS.audioLoad("bidoof", { fileTypes: ["mp3"], path: "pokemon cries/" });
+    PS.audioLoad("blissey", { fileTypes: ["mp3"], path: "pokemon cries/" });
+    PS.audioLoad("caterpie", { fileTypes: ["mp3"], path: "pokemon cries/" });
+    PS.audioLoad("charizard", { fileTypes: ["mp3"], path: "pokemon cries/" });
+    PS.audioLoad("cloyster", { fileTypes: ["mp3"], path: "pokemon cries/" });
+    PS.audioLoad("cubone", { fileTypes: ["mp3"], path: "pokemon cries/" });
+    PS.audioLoad("cyndaquil", { fileTypes: ["mp3"], path: "pokemon cries/" });
+    PS.audioLoad("dodrio", { fileTypes: ["mp3"], path: "pokemon cries/" });
+    PS.audioLoad("espeon", { fileTypes: ["mp3"], path: "pokemon cries/" });
+    PS.audioLoad("farfetchd", { fileTypes: ["mp3"], path: "pokemon cries/" });
+    PS.audioLoad("flareon", { fileTypes: ["mp3"], path: "pokemon cries/" });
+    PS.audioLoad("garchomp", { fileTypes: ["mp3"], path: "pokemon cries/" });
+    PS.audioLoad("hoothoot", { fileTypes: ["mp3"], path: "pokemon cries/" });
+    PS.audioLoad("houndoom", { fileTypes: ["mp3"], path: "pokemon cries/" });
+    PS.audioLoad("jolteon", { fileTypes: ["mp3"], path: "pokemon cries/" });
+    PS.audioLoad("jynx", { fileTypes: ["mp3"], path: "pokemon cries/" });
+    PS.audioLoad("kricketune", { fileTypes: ["mp3"], path: "pokemon cries/" });
+    PS.audioLoad("kyogre", { fileTypes: ["mp3"], path: "pokemon cries/" });
+    PS.audioLoad("lugia", { fileTypes: ["mp3"], path: "pokemon cries/" });
+    PS.audioLoad("magikarp", { fileTypes: ["mp3"], path: "pokemon cries/" });
+    PS.audioLoad("mew", { fileTypes: ["mp3"], path: "pokemon cries/" });
+    PS.audioLoad("ninetales", { fileTypes: ["mp3"], path: "pokemon cries/" });
+    PS.audioLoad("palkia", { fileTypes: ["mp3"], path: "pokemon cries/" });
+    PS.audioLoad("pelipper", { fileTypes: ["mp3"], path: "pokemon cries/" });
+    PS.audioLoad("pidgeot", { fileTypes: ["mp3"], path: "pokemon cries/" });
+    PS.audioLoad("poochyena", { fileTypes: ["mp3"], path: "pokemon cries/" });
+    PS.audioLoad("porygon", { fileTypes: ["mp3"], path: "pokemon cries/" });
+    PS.audioLoad("psyduck", { fileTypes: ["mp3"], path: "pokemon cries/" });
+    PS.audioLoad("raichu", { fileTypes: ["mp3"], path: "pokemon cries/" });
+    PS.audioLoad("rayquaza", { fileTypes: ["mp3"], path: "pokemon cries/" });
+    PS.audioLoad("slowpoke", { fileTypes: ["mp3"], path: "pokemon cries/" });
+    PS.audioLoad("sunkern", { fileTypes: ["mp3"], path: "pokemon cries/" });
+    PS.audioLoad("tentacruel", { fileTypes: ["mp3"], path: "pokemon cries/" });
+    PS.audioLoad("typhlosion", { fileTypes: ["mp3"], path: "pokemon cries/" });
+    PS.audioLoad("umbreon", { fileTypes: ["mp3"], path: "pokemon cries/" });
+    PS.audioLoad("vaporeon", { fileTypes: ["mp3"], path: "pokemon cries/" });
+    PS.audioLoad("voltorb", { fileTypes: ["mp3"], path: "pokemon cries/" });
+    PS.audioLoad("zubat", { fileTypes: ["mp3"], path: "pokemon cries/" });
     levelBuild(lvl);
 
     //PS.audioLoad("click5", {  path: "audio/" });
@@ -319,6 +371,59 @@ PS.touch = function( x, y, data, options ) {
             PS.color(x,y,PS.COLOR_BLACK);
             beadling.move(beadling.xcoord,beadling.ycoord);
             PS.audioPlay("click"+(PS.random(4)).toString(), { fileTypes: ["wav"], path: "audio/" });
+        }
+        else if (arr[0]==1){
+            PS.statusText("That's the beadling!")
+            const Cries = [
+                "abomasnow",
+                "ampharos",
+                "arcanine",
+                "arceus",
+                "azumarill",
+                "bayleef",
+                "bellsprout",
+                "bidoof",
+                "blissey",
+                "caterpie",
+                "charizard",
+                "cloyster",
+                "cubone",
+                "cyndaquil",
+                "dodrio",
+                "espeon",
+                "farfetchd",
+                "flareon",
+                "garchomp",
+                "hoothoot",
+                "houndoom",
+                "jolteon",
+                "jynx",
+                "kricketune",
+                "kyogre",
+                "lugia",
+                "magikarp",
+                "mew",
+                "ninetales",
+                "palkia",
+                "pelipper",
+                "pidgeot",
+                "poochyena",
+                "porygon",
+                "psyduck",
+                "raichu",
+                "rayquaza",
+                "slowpoke",
+                "sunkern",
+                "tentacruel",
+                "typhlosion",
+                "umbreon",
+                "vaporeon",
+                "voltorb",
+                "zubat"
+            ];
+
+            let choice = PS.random( Cries.length );
+            PS.audioPlay( Cries[ choice - 1 ], { fileTypes: ["mp3"], path: "pokemon cries/" } );
         }
         else{
             PS.statusText("You can't build a wall there!");
