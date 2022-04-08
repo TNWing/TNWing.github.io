@@ -119,7 +119,6 @@ var beadling={
             for (let yC=0;yC<ysize;yC++){
                 for(let xC=0;xC<xsize;xC++){
                     let bD=PS.data(xC,yC);
-                    PS.debug(bD + " ");
                     if (bD[0]==0 || bD[0]==1 || bD[0]==3 || bD[0]==4){//can move along these things
                         myMap.data.push(1);
                     }
@@ -164,7 +163,6 @@ var beadling={
                 this.ycoord=newY;
                 PS.audioPlay("scurry"+(PS.random(3)).toString(), { fileTypes: ["wav"], path: "audio/" });
                 if (pathVal==4){
-                    PS.debug("HERE");
                     PS.statusText("You lost!");
                     gameover=0;
                     myTimer=PS.timerStart ( 120, levelBuild);
@@ -363,10 +361,7 @@ PS.touch = function( x, y, data, options ) {
         let arr =PS.data(x,y);
         if (arr[0]==0){
             //so level is being overwritten by the arr func
-            PS.debug("\n\n");
-            PS.debug(level1+"\n\n");
             arr[0]=2;
-            PS.debug(level1);
             PS.color(x,y,PS.COLOR_BLACK);
             beadling.move(beadling.xcoord,beadling.ycoord);
             PS.audioPlay("click"+(PS.random(4)).toString(), { fileTypes: ["wav"], path: "audio/" });
