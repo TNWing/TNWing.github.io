@@ -151,7 +151,6 @@ var beadling={
                 let color=setColor(PS.data(xCurrent,yCurrent)[2]);
                 PS.color(xCurrent,yCurrent,color);
                 let d=PS.data(xCurrent,yCurrent);
-                PS.debug(d + "\n");
                 PS.data(xCurrent,yCurrent,[d[2],d[1],d[2]]);
                 let newX=path[0][0];
                 let newY=path[0][1];
@@ -171,15 +170,19 @@ var beadling={
                 }
             }
         }
-
-
     }
 }
 
 var behaviors={
-    stubborn:function(currentP,dest){//use pathmap
+    standard:function(currentP,dest){//goes for closest
 
-    }
+    },
+    erratic:function(currentP,dest,counter){//will periodically switch targets
+
+    },
+    bountiful:function(currentP,dest){//will attempt to pick the edge with the most entry points
+
+    },
 }
 
 var resetGrid=function(){
