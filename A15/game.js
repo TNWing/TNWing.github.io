@@ -50,9 +50,11 @@ Any value returned is ignored.
 [system : Object] = A JavaScript object containing engine and host platform information properties; see API documentation for details.
 [options : Object] = A JavaScript object with optional data properties; see API documentation for details.
 */
-
 //import {readFile} from 'fs';
+var movingWalls=[];
+var arrowGlyphs=[0x2190,0x2191,0x2192,0x2193];
 var lvl=1;
+var isTutorial=true;
 var edgeArray=[];//contains all edges
 var goodEdges=[];//contains all edges that are currently accessible
 let xsize=0;
@@ -64,6 +66,57 @@ var myMap = {
     pixelSize : 1, // format 1
     data:[]
 };
+var defaultText="Create walls to trap the yellow bead"
+//intro sequence
+var intro=function(){
+    lvl=0;
+    levelBuild();
+    gameover=1;
+    myTimer=PS.timerStart(60,introMove);
+    PS.statusText("");
+    /*
+    lvl=1;
+    levelBuild();
+    gameover=-1;
+     */
+}
+
+var introMove=function(){
+    if (beadling.xcoord==-1){
+        PS.color(1, 4, PS.COLOR_YELLOW);
+        PS.glyph(1,4,"B");
+        beadling.xcoord = 1;
+        beadling.ycoord = 4;
+    }
+    else{
+        if (!isTutorial){
+            PS.timerStop(myTimer);
+            PS.color(1, 0, PS.COLOR_WHITE);
+            PS.glyph(1,0,"");
+            beadling.xcoord = -1;
+            beadling.ycoord = -1;
+            myTimer=PS.timerStart(120,endIntro);
+        }
+        else{
+            beadling.move(beadling.xcoord,beadling.ycoord);
+            if (beadling.ycoord==0){
+                PS.audioPlay( "caterpie", { fileTypes: ["mp3"], path: "pokemon cries/" } );
+                isTutorial=false;
+                PS.timerStop(myTimer);
+                myTimer=PS.timerStart(120,introMove);
+            }
+        }
+    }
+}
+
+var endIntro=function(){
+    PS.timerStop(myTimer);
+    myTimer=null;
+    lvl=1;
+    gameover=-1;
+    levelBuild();
+}
+
 var setColor=function(i){
     let color=null;
     switch(i){
@@ -75,7 +128,7 @@ var setColor=function(i){
             break;
         }
         case 1:{
-            color=PS.COLOR_RED;
+            color=PS.COLOR_YELLOW;
             break;
         }
         case 2:{
@@ -90,6 +143,10 @@ var setColor=function(i){
             color=PS.COLOR_GREEN;
             break;
         }
+        case 6:{
+            color=PS.COLOR_BLUE;
+            break;
+        }
     }
     return color;
 }
@@ -99,17 +156,20 @@ var pathOptions={
     cut_corners:false,
 };
 //0: walkable space, 1: beadling space, 2: wall, 3: walkable tile (can't place walls), 4: edge (where the beadling needs to go), 5: blank/hole
-
+//bead properties
+//0: nothing
+//@: teleport sigil
+//*: destroy sigil
 var beadling={
     behavior:0,
-    xcoord:0,
-    ycoord:0,
+    xcoord:-1,
+    ycoord:-1,
     move:function(xCurrent,yCurrent){//have 3rd param, which consists of edges to not include
         if (goodEdges.length<=0){
             PS.statusText("YOU WON");
             gameover=1;
             lvl++;
-            levelBuild(lvl);
+            levelBuild();
         }
         else{
             myMap.width=xsize;
@@ -127,7 +187,6 @@ var beadling={
                 }
             }
             let mapID=PS.pathMap(myMap);
-
             let closest=0;
             let beadCoord=goodEdges[0];
             let dist=PS.pathFind(mapID,xCurrent,yCurrent,goodEdges[0][0],goodEdges[0][1],pathOptions).length;
@@ -150,6 +209,7 @@ var beadling={
             else{//actually moves
                 let color=setColor(PS.data(xCurrent,yCurrent)[2]);
                 PS.color(xCurrent,yCurrent,color);
+                PS.glyph(xCurrent,yCurrent,"");
                 let d=PS.data(xCurrent,yCurrent);
                 PS.data(xCurrent,yCurrent,[d[2],d[1],d[2]]);
                 let newX=path[0][0];
@@ -157,17 +217,96 @@ var beadling={
                 let pathVal=PS.data(newX,newY)[0];
                 let newData=[1,PS.data(newX,newY)[1],PS.data(newX,newY)[2]];//error here, can't read undefined
                 PS.data(path[0][0],path[0][1],newData);
-                PS.color(newX,newY,PS.COLOR_RED);
+                PS.color(newX,newY,PS.COLOR_YELLOW);
+                PS.glyph(newX,newY,"B");
                 this.xcoord=newX;
                 this.ycoord=newY;
                 PS.audioPlay("scurry"+(PS.random(3)).toString(), { fileTypes: ["wav"], path: "audio/" });
-                if (pathVal==4){
+                if (pathVal==4 && !isTutorial){
                     PS.statusText("You lost!");
                     gameover=0;
                     myTimer=PS.timerStart ( 120, levelBuild);
                     //lvl++;
                     //levelBuild(lvl);
                 }
+            }
+            //moving walls move!
+            for (let i=0;i<movingWalls.length;i++){
+                let caseValArray=movingWalls[i];
+                let caseVal=PS.data[caseValArray[0],caseValArray[1]][1];
+                switch (caseVal){
+                    case 0:{
+                        let oldX=movingWalls[i][0];
+                        let oldY=movingWalls[i][1];
+                        let newX=oldX-1;
+                        let newY=oldY;
+                        if (PS.data[newX,newY][0]!=1){
+                            PS.data[oldX,oldY]=[0,0,0];
+                            PS.color(oldX,oldY,PS.COLOR_WHITE);
+                            PS.glyph(oldX,oldY,"");
+                            PS.data[newX,newY]=[6,1,6];
+                            PS.color(newX,newY,PS.COLOR_BLUE);
+                            PS.glyph(newX,newY,arrowGlyphs[1]);
+                            movingWalls.splice(i,1);
+                            movingWalls.push([newX,newY]);
+                        }
+
+                        break;
+                    }
+                    case 1:{
+                        let oldX=movingWalls[i][0];
+                        let oldY=movingWalls[i][1];
+                        let newX=oldX;
+                        let newY=oldY-1;
+                        if (PS.data[newX,newY][0]!=1) {
+                            PS.data[oldX,oldY]=[0,0,0];
+                            PS.color(oldX,oldY,PS.COLOR_WHITE);
+                            PS.glyph(oldX,oldY,"");
+                            PS.data[newX,newY]=[6,2,6];
+                            PS.color(newX,newY,PS.COLOR_BLUE);
+                            PS.glyph(newX,newY,arrowGlyphs[2]);
+                            movingWalls.splice(i,1);
+                            movingWalls.push([newX,newY]);
+                        }
+
+                        break;
+                    }
+                    case 2:{
+                        let oldX=movingWalls[i][0];
+                        let oldY=movingWalls[i][1];
+                        let newX=oldX+1;
+                        let newY=oldY;
+                        if (PS.data[newX,newY][0]!=1) {
+                            PS.data[oldX, oldY] = [0, 0, 0];
+                            PS.color(oldX, oldY, PS.COLOR_WHITE);
+                            PS.glyph(oldX, oldY, "");
+                            PS.data[newX, newY] = [6, 3, 6];
+                            PS.color(newX, newY, PS.COLOR_BLUE);
+                            PS.glyph(newX, newY, arrowGlyphs[3]);
+                            movingWalls.splice(i,1);
+                            movingWalls.push([newX,newY]);
+                        }
+                        break;
+                    }
+                    case 3:{
+                        let oldX=movingWalls[i][0];
+                        let oldY=movingWalls[i][1];
+                        let newX=oldX;
+                        let newY=oldY+1;
+                        if (PS.data[newX,newY][0]!=1) {
+                            PS.data[oldX, oldY] = [0, 0, 0];
+                            PS.color(oldX, oldY, PS.COLOR_WHITE);
+                            PS.glyph(oldX, oldY, "");
+                            PS.data[newX, newY] = [6, 0, 6];
+                            PS.color(newX, newY, PS.COLOR_BLUE);
+                            PS.glyph(newX, newY, arrowGlyphs[0]);
+                            movingWalls.splice(i,1);
+                            movingWalls.push([newX,newY]);
+                        }
+                        break;
+                    }
+                }
+
             }
         }
     }
@@ -185,6 +324,13 @@ var behaviors={
     },
 }
 
+var resetStatus=function(){
+    PS.statusText(defaultText);
+    if (myTimer!=null){
+        myTimer=null;
+    }
+}
+
 var resetGrid=function(){
     PS.data(PS.ALL,PS.ALL,0);
     PS.color(PS.ALL,PS.ALL,PS.COLOR_WHITE);
@@ -200,11 +346,13 @@ var levelCopy=function(level){
     return newLVL;
 }
 
-var levelBuild=function(){//why is levelbuild being called const
-    if (lvl>4){
+var levelBuild=function(){
+    if (lvl>5){
         PS.statusText("YOU BEAT THE GAME");
     }
     else{
+        movingWalls=[];
+        PS.statusText(defaultText);
         if (myTimer!=null){
             PS.timerStop(myTimer);
             myTimer=null;
@@ -213,6 +361,10 @@ var levelBuild=function(){//why is levelbuild being called const
         let level=null;
         resetGrid();
         switch(lvl){
+            case 0:{
+                level=levelCopy(level0);
+                break;
+            }
             case 1:{
                 level=levelCopy(level1);
                 break;
@@ -227,6 +379,14 @@ var levelBuild=function(){//why is levelbuild being called const
             }
             case 4:{
                 level=levelCopy(level4);
+                break;
+            }
+            case 5:{
+                level=levelCopy(level5);
+                break;
+            }
+            case 6:{
+                level=levelCopy(level6);
             }
             default:{
                 //invalid level
@@ -254,7 +414,8 @@ var levelBuild=function(){//why is levelbuild being called const
                         break;
                     }
                     case 1: {
-                        PS.color(x, y, PS.COLOR_RED);
+                        PS.color(x, y, PS.COLOR_YELLOW);
+                        PS.glyph(x,y,"B");
                         beadling.xcoord = x;
                         beadling.ycoord = y;
                         break;
@@ -272,7 +433,12 @@ var levelBuild=function(){//why is levelbuild being called const
                         edgeArray.push([x, y]);
                         break;
                     }
-                    case 5: {
+                    case 6:{
+                        //2190-2194
+                        PS.color(x,y,PS.COLOR_BLUE);
+                        PS.data(x,y,[6,0,6]);
+                        PS.glyph(x,y,arrowGlyphs[PS.data(x,y)[1]])
+                        movingWalls.push([x,y]);
                         break;
                     }
                 }
@@ -290,7 +456,6 @@ var levelBuild=function(){//why is levelbuild being called const
 }
 
 PS.init = function( system, options ) {
-    PS.statusText( "Don't let it reach green!" );
     PS.audioLoad("click1", { fileTypes: ["wav"], path: "audio/" });
     PS.audioLoad("click2", { fileTypes: ["wav"], path: "audio/" });
     PS.audioLoad("click3", { fileTypes: ["wav"], path: "audio/" });
@@ -343,8 +508,7 @@ PS.init = function( system, options ) {
     PS.audioLoad("vaporeon", { fileTypes: ["mp3"], path: "pokemon cries/" });
     PS.audioLoad("voltorb", { fileTypes: ["mp3"], path: "pokemon cries/" });
     PS.audioLoad("zubat", { fileTypes: ["mp3"], path: "pokemon cries/" });
-    levelBuild(lvl);
-
+    intro();
     //PS.audioLoad("click5", {  path: "audio/" });
 
 	// Add any other initialization code you need here.
@@ -364,7 +528,7 @@ PS.touch = function( x, y, data, options ) {
 	// Uncomment the following code line
 	// to inspect x/y parameters:
 	// PS.debug( "PS.touch() @ " + x + ", " + y + "\n" );
-    if (gameover==-1){//level is being "overwritten", the actual file isn't being touched, but levelX changes every time a wall is made
+    if (gameover==-1){
         let arr =PS.data(x,y);
         if (arr[0]==0){
             //so level is being overwritten by the arr func
@@ -422,12 +586,13 @@ PS.touch = function( x, y, data, options ) {
                 "voltorb",
                 "zubat"
             ];
-
+            myTimer=PS.timerStart ( 60, resetStatus);
             let choice = PS.random( Cries.length );
             PS.audioPlay( Cries[ choice - 1 ], { fileTypes: ["mp3"], path: "pokemon cries/" } );
         }
         else{
             PS.statusText("You can't build a wall there!");
+            myTimer=PS.timerStart ( 60, resetStatus);
         }
     }
 
