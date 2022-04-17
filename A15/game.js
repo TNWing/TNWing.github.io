@@ -114,6 +114,7 @@ var endIntro=function(){
     myTimer=null;
     lvl=1;
     gameover=-1;
+    PS.debug("TESTING");
     levelBuild();
 }
 
@@ -231,83 +232,6 @@ var beadling={
                 }
             }
             //moving walls move!
-            for (let i=0;i<movingWalls.length;i++){
-                let caseValArray=movingWalls[i];
-                let caseVal=PS.data[caseValArray[0],caseValArray[1]][1];
-                switch (caseVal){
-                    case 0:{
-                        let oldX=movingWalls[i][0];
-                        let oldY=movingWalls[i][1];
-                        let newX=oldX-1;
-                        let newY=oldY;
-                        if (PS.data[newX,newY][0]!=1){
-                            PS.data[oldX,oldY]=[0,0,0];
-                            PS.color(oldX,oldY,PS.COLOR_WHITE);
-                            PS.glyph(oldX,oldY,"");
-                            PS.data[newX,newY]=[6,1,6];
-                            PS.color(newX,newY,PS.COLOR_BLUE);
-                            PS.glyph(newX,newY,arrowGlyphs[1]);
-                            movingWalls.splice(i,1);
-                            movingWalls.push([newX,newY]);
-                        }
-
-                        break;
-                    }
-                    case 1:{
-                        let oldX=movingWalls[i][0];
-                        let oldY=movingWalls[i][1];
-                        let newX=oldX;
-                        let newY=oldY-1;
-                        if (PS.data[newX,newY][0]!=1) {
-                            PS.data[oldX,oldY]=[0,0,0];
-                            PS.color(oldX,oldY,PS.COLOR_WHITE);
-                            PS.glyph(oldX,oldY,"");
-                            PS.data[newX,newY]=[6,2,6];
-                            PS.color(newX,newY,PS.COLOR_BLUE);
-                            PS.glyph(newX,newY,arrowGlyphs[2]);
-                            movingWalls.splice(i,1);
-                            movingWalls.push([newX,newY]);
-                        }
-
-                        break;
-                    }
-                    case 2:{
-                        let oldX=movingWalls[i][0];
-                        let oldY=movingWalls[i][1];
-                        let newX=oldX+1;
-                        let newY=oldY;
-                        if (PS.data[newX,newY][0]!=1) {
-                            PS.data[oldX, oldY] = [0, 0, 0];
-                            PS.color(oldX, oldY, PS.COLOR_WHITE);
-                            PS.glyph(oldX, oldY, "");
-                            PS.data[newX, newY] = [6, 3, 6];
-                            PS.color(newX, newY, PS.COLOR_BLUE);
-                            PS.glyph(newX, newY, arrowGlyphs[3]);
-                            movingWalls.splice(i,1);
-                            movingWalls.push([newX,newY]);
-                        }
-                        break;
-                    }
-                    case 3:{
-                        let oldX=movingWalls[i][0];
-                        let oldY=movingWalls[i][1];
-                        let newX=oldX;
-                        let newY=oldY+1;
-                        if (PS.data[newX,newY][0]!=1) {
-                            PS.data[oldX, oldY] = [0, 0, 0];
-                            PS.color(oldX, oldY, PS.COLOR_WHITE);
-                            PS.glyph(oldX, oldY, "");
-                            PS.data[newX, newY] = [6, 0, 6];
-                            PS.color(newX, newY, PS.COLOR_BLUE);
-                            PS.glyph(newX, newY, arrowGlyphs[0]);
-                            movingWalls.splice(i,1);
-                            movingWalls.push([newX,newY]);
-                        }
-                        break;
-                    }
-                }
-
-            }
         }
     }
 }
@@ -345,7 +269,7 @@ var levelCopy=function(level){
     }
     return newLVL;
 }
-
+/*
 var levelBuild=function(){
     if (lvl>5){
         PS.statusText("YOU BEAT THE GAME");
@@ -387,6 +311,7 @@ var levelBuild=function(){
             }
             case 6:{
                 level=levelCopy(level6);
+                break;
             }
             default:{
                 //invalid level
@@ -451,8 +376,100 @@ var levelBuild=function(){
             goodEdges = edgeArray;
         }
     }
+}
 
-
+ */
+var levelBuild=function() {//why is levelbuild being called const
+    if (lvl > 5) {
+        PS.statusText("YOU BEAT THE GAME");
+    } else {//wtf is calling this func const
+        if (myTimer != null) {
+            PS.timerStop(myTimer);
+            myTimer = null;
+        }
+        PS.statusText(defaultText);
+        gameover = -1;
+        let level = null;
+        resetGrid();
+        switch (lvl) {
+            case 0: {
+                level = levelCopy(level0);
+                break;
+            }
+            case 1: {
+                level = levelCopy(level1);
+                break;
+            }
+            case 2: {
+                level = levelCopy(level2);
+                break;
+            }
+            case 3: {
+                level = levelCopy(level3);
+                break;
+            }
+            case 4: {
+                level = levelCopy(level4);
+                break;
+            }
+            default: {
+                //invalid level
+            }
+        }
+        if (level != null) {
+            let x = 0;
+            let y = 0;
+            let size = level[0];
+            xsize = size[0];//6
+            ysize = size[1];//5
+            let space = 0;
+            PS.gridSize(xsize, ysize);
+            PS.gridColor(PS.COLOR_CYAN);
+            for (let i = 1; i < level.length; i++) {
+                let data = PS.data(x, y, level[i]);
+                switch (level[i][0]) {
+                    case 5: {//hole
+                        PS.visible(x, y, false);
+                        break;
+                    }
+                    case 0: {
+                        space++;
+                        PS.color(x, y, PS.COLOR_WHITE);
+                        break;
+                    }
+                    case 1: {
+                        PS.color(x, y, PS.COLOR_YELLOW);
+                        PS.glyph(x,y,"B");
+                        beadling.xcoord = x;
+                        beadling.ycoord = y;
+                        break;
+                    }
+                    case 2: {
+                        PS.color(x, y, PS.COLOR_BLACK);
+                        break;
+                    }
+                    case 3: {
+                        PS.color(x, y, 255, 192, 64);
+                        break;
+                    }
+                    case 4: {
+                        PS.color(x, y, PS.COLOR_GREEN);
+                        edgeArray.push([x, y]);
+                        break;
+                    }
+                    case 5: {
+                        break;
+                    }
+                }
+                x++;
+                if (x >= xsize) {
+                    x = 0;
+                    y++;
+                }
+            }
+            goodEdges = edgeArray;
+        }
+    }
 }
 
 PS.init = function( system, options ) {
