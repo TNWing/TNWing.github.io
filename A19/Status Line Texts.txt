@@ -1,0 +1,23 @@
+Screen 1: Simple block puzzle
+Starting text: Solve the puzzle.
+If player lingers for a long period of time: Can you please do something?
+If the player pushes the right block in the right way: You did it. Yay.
+if the player pushes the right block in the wrong way: You've ruined it. (game restarts)
+If the player pushes any other block: Why are you doing that? alternated with Stop that!
+If the player finds the easter egg block (pictured): It's an Easter Egg. (chicken noise)
+
+Screen 2: Choose the right block
+Starting Text: Pick the blue block.
+If player lingers for a long period of time: Can you please do something?
+If the player picks the blue block: Good job. Continue.
+If the player picks the orange block: I said the blue block.
+If the player finds the easter egg block: It's an Easter Egg. (chicken noise)
+If the player picks the blue block too many times: This isn't fun anymore. (game restarts)
+
+Screen 3: A maze
+Starting text: A maze.
+If player lingers for a long period of time: Can you please do something?
+If the player reaches the end of the maze: That wasn't too hard.
+If the player interacts with a grey block around the pink block: Is there something there...?
+If the player goes to the opposite end of the maze (pictured): You don't need to be there.
+If the player finds the easter egg block: It's an Easter Egg. (chicken noise)
