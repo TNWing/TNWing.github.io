@@ -51,6 +51,9 @@ Any value returned is ignored.
 //[color,type,misc_array]
 //misc_array is an array of any size, as type will detemrine what the values in misc_array represent
 //misc_array will always have at least 1 value, which contains whether or not the player is on that bead
+var inventory=[]
+
+
 
 var customColors={
 }
@@ -87,6 +90,14 @@ var getColor=function(i){
             color=PS.COLOR_GRAY_LIGHT;
             break;
         }
+        case 4:{
+            color=PS.COLOR_RED;
+            break;
+        }
+        case 5:{
+            color=PS.COLOR_MAGENTA;
+            break;
+        }
         default:{
             color=-1;
             break;
@@ -111,10 +122,12 @@ var mapBuild=function(mapNum) {//why is levelbuild being called const
     switch (mapNum) {
         case 0: {
             map = mapstart;
+            PS.statusText("A beginning");
             break;
         }
         case 1: {
             map = map0_0;
+            PS.statusText("Pirate Treasure");
             break;
         }
         default: {
@@ -204,7 +217,7 @@ This function doesn't have to do anything. Any value returned is ignored.
 [data : *] = The JavaScript value previously associated with bead(x, y) using PS.data(); default = 0.
 [options : Object] = A JavaScript object with optional data properties; see API documentation for details.
 */
-
+var flashTimer;
 PS.enter = function( x, y, data, options ) {
 	// Uncomment the following code line to inspect x/y parameters:
 
@@ -301,11 +314,14 @@ PS.keyDown = function( key, shift, ctrl, options ) {
             break;
     }
     //check to see if the change to x is blocked
+    //also will need to update old stuff
+    let type1=PS.data(oldX,oldY)[1];
+    adjustCurrentBead(oldX,oldY,type1)
     let type=PS.data(newX,newY)[1];
+    //doesn't do multiple types i think
     switch (type){
         case -1:{//move to next map
             let mapID=PS.data(newX,newY)[2][0];
-
             mapBuild(mapID);
             if (horizontalDir==1){
                 player.xcoord=0;
@@ -327,6 +343,8 @@ PS.keyDown = function( key, shift, ctrl, options ) {
             let oldData=PS.data(oldX,oldY)[3];
             let oldData2=PS.data(newX,newY)[3];
             PS.color(oldX,oldY,PS.COLOR_WHITE);
+            let type1=PS.data(oldX,oldY)[1];
+            adjustCurrentBead(oldX,oldY,type1)
             //PS.data(oldX,oldY,oldData)
             PS.color(newX,newY,PS.COLOR_CYAN);
             player.xcoord=newX;
@@ -356,11 +374,152 @@ PS.keyDown = function( key, shift, ctrl, options ) {
             }
             break;
         }
+        case 2:{//path that changes attribute/color when walked over
+            //ONLY HERE AS WELL
+            //PS.debug(newX+","+newY+"\t");
+
+            PS.color(oldX,oldY,getColor(PS.data(oldX,oldY)[0]));
+            //PS.debug(newX+","+newY+"\t");
+            if (PS.data(newX,newY)[0]==4){
+                PS.data(newX,newY,[5,2,[5],[0]]);
+            }
+            else {
+                PS.data(newX,newY,[4,2,[4],[0]]);
+            }
+            //PS.data(oldX,oldY,oldData)
+            //if leave path, then it doesn't recolor the old tile for some god forsaken reason
+            //
+            PS.color(newX,newY,PS.COLOR_CYAN);
+            player.xcoord=newX;
+            player.ycoord=newY;
+            //PS.debug(oldX + "   " + oldY + " TO " + player.xcoord + "   " + player.ycoord);
+            //horizontal/vertical dirs are fine, its something else
+            //4   7 TO 5   5   5   5 TO 6   6   6   6 TO 7   7
+            //but why
+            //PS.debug(PS.color(oldX,oldY)+"\n");
+            break;
+        }
     }
 
 	// Add code here for when a key is pressed.
 };
 
+var adjustCurrentBead=function(x,y,type){
+    //PS.debug(type+"\t");
+    switch(type){
+        case 2:{
+            PS.color(x,y,getColor(PS.data(x,y)[0]));
+            checkPathPuzzle(1);
+            //needs to change to stored color
+            break;
+        }
+    }
+}
+
+//i is the # of the puzzle, currently just one
+//5,3 5,4 5,5 5,6 5,7
+//6
+//7
+//8
+//9
+var checkPathPuzzle=function(i){
+    switch(i){
+        case 1:{
+            //first, check for standard win
+            let allBeads=[[5,3],[6,4],[7,5],[8,6],[9,7],[9,3],[8,4],[6,6],[5,7],[6,3],[7,3],[8,3],
+                [5,4],[7,4],[9,4],
+                [5,5],[6,5],[8,5],[9,5],
+                [5,6],[7,6],[9,6],
+                [6,7],[7,7],[8,7],]
+            let standardValid=true;
+            for (let s=0;s<allBeads.length;s++){
+                let arr=allBeads[s];
+                if (PS.data(arr[0],arr[1])[0]==4){
+                    standardValid=false;
+                    break;
+                }
+            }
+            if (standardValid){
+                PS.statusText("That wasn't so hard, was it?");
+            }
+            else{
+                //then, secret win
+                let XbeadList=[[5,3],[6,4],[7,5],[8,6],[9,7],[9,3],[8,4],[6,6],[5,7]];
+                let otherBeads=[[6,3],[7,3],[8,3],
+                    [5,4],[7,4],[9,4],
+                    [5,5],[6,5],[8,5],[9,5],
+                    [5,6],[7,6],[9,6],
+                    [6,7],[7,7],[8,7],
+                ];
+                //add each path bead to the list;
+                //check if matches pattern
+                let colorNum=PS.data(5,3)[0];
+                let valid=true;
+                if (colorNum==4){
+                    for (let i=0;i<XbeadList.length;i++){
+                        let arr=XbeadList[i];
+                        if (PS.data(arr[0],arr[1])[0]!=4){
+                            valid=false;
+                        }
+                    }
+                    for (let i=0;i<otherBeads.length;i++){
+                        let arr=otherBeads[i];
+                        if (PS.data(arr[0],arr[1])[0]!=5){//why error here
+                            valid=false;
+                        }
+                    }
+                }
+                else{
+                    for (let i=0;i<XbeadList.length;i++){
+                        let arr=XbeadList[i];
+                        if (PS.data(arr[0],arr[1])[0]!=5){
+                            valid=false;
+                        }
+                    }
+                    for (let i=0;i<otherBeads.length;i++){
+                        let arr=otherBeads[i];
+                        if (PS.data(arr[0],arr[1])[0]!=4){
+                            valid=false;
+                        }
+                    }
+                }
+                if (valid){
+                    PS.statusText("Hey! You weren't supposed to find that!");
+                    //dig up treasure
+                    for (let i=0;i<XbeadList.length;i++){
+                        let arr=XbeadList[i];
+                        PS.data(arr[0],arr[1],[0,0,[0],[0]]);
+                        PS.color(arr[0],arr[1],PS.COLOR_WHITE);
+                    }
+                    for (let i=0;i<otherBeads.length;i++){
+                        let arr=otherBeads[i];
+                        PS.data(arr[0],arr[1],[0,0,[0],[0]]);
+                        PS.color(arr[0],arr[1],PS.COLOR_WHITE);
+                    }
+                    let t=4;
+                    flashTimer=PS.timerStart(t,beadFlash,t,7,5,-1,0,60,1);
+                    inventory.push("TREASURE");
+                }
+                break;
+            }
+        }
+    }
+}
+var beadFlash=function(t,x,y,c1,c2,r,i){
+    PS.timerStop(flashTimer);
+    if (r>0){
+        if (i==1){
+            PS.color(x,y,getColor(c2));
+            flashTimer=PS.timerStart(t,beadFlash,t,x,y,c1,c2,r-1,0);
+        }
+        else{
+            PS.color(x,y,getColor(c1));
+            flashTimer=PS.timerStart(t,beadFlash,t,x,y,c1,c2,r-1,1);
+        }
+    }
+
+
+}
 /*
 PS.keyUp ( key, shift, ctrl, options )
 Called when a key on the keyboard is released.
