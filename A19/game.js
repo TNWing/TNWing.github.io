@@ -47,23 +47,101 @@ Any value returned is ignored.
 [system : Object] = A JavaScript object containing engine and host platform information properties; see API documentation for details.
 [options : Object] = A JavaScript object with optional data properties; see API documentation for details.
 */
+//bead data: what should it be?
+//[color,type,misc_array]
+//misc_array is an array of any size, as type will detemrine what the values in misc_array represent
+//misc_array will always have at least 1 value, which contains whether or not the player is on that bead
+
+var customColors={
+}
+var player={//player represented by CYAN
+    xcoord:0,
+    ycoord:0,
+}
+var resetGrid=function(){
+    PS.data(PS.ALL,PS.ALL,0);
+    PS.color(PS.ALL,PS.ALL,PS.COLOR_WHITE);
+    PS.gridSize(16,16);
+}
+
+var getColor=function(i){
+    let color=null;
+    switch (i){
+        case -1:{//white
+            color=[229,255,102];
+            break;
+        }
+        case 0:{//white
+            color=PS.COLOR_WHITE;
+            break;
+        }
+        case 1:{
+            color=PS.COLOR_BLACK;
+            break;
+        }
+        case 2:{
+            color=PS.COLOR_GRAY;
+            break;
+        }
+        case 3:{
+            color=PS.COLOR_GRAY_LIGHT;
+            break;
+        }
+        default:{
+            color=-1;
+            break;
+        }
+    }
+    return color;
+}
+
+var mapCopy=function(map){
+    var newMap=map.slice(0);
+    for(var i =0;i< newMap.length; i++) {
+        if (newMap[i] instanceof Array) {
+            newMap[i] = mapCopy(newMap[i]);
+        }
+    }
+    return newMap;
+}
+
+var mapBuild=function(mapNum) {//why is levelbuild being called const
+    let map = null;
+    resetGrid();
+    switch (mapNum) {
+        case 0: {
+            map = mapstart;
+            break;
+        }
+        case 1: {
+            map = map0_0;
+            break;
+        }
+        default: {
+            //invalid level
+        }
+    }
+    if (map!=null){
+        let x=0;
+        let y=0;
+        for (let i=0;i<map.length;i++){
+            let c=map[i][0];
+            PS.color(x,y,getColor(c));//why all balck
+            PS.data(x,y,map[i]);
+            x++;
+            if (x>15){
+                x=0;
+                y++;
+                //PS.debug("\n");
+            }
+        }
+    }
+
+}
 
 PS.init = function( system, options ) {
-	// Uncomment the following code line
-	// to verify operation:
-
-	// PS.debug( "PS.init() called\n" );
-
-	// This function should normally begin
-	// with a call to PS.gridSize( x, y )
-	// where x and y are the desired initial
-	// dimensions of the grid.
-	// Call PS.gridSize() FIRST to avoid problems!
-	// The sample call below sets the grid to the
-	// default dimensions (8 x 8).
-	// Uncomment the following code line and change
-	// the x and y parameters as needed.
-
+    player.xcoord=4;
+    player.ycoord=8;
 	// PS.gridSize( 8, 8 );
 
 	// This is also a good place to display
@@ -75,6 +153,8 @@ PS.init = function( system, options ) {
 	// PS.statusText( "Game" );
 
 	// Add any other initialization code you need here.
+    mapBuild(0);
+    PS.color(player.xcoord,player.ycoord,PS.COLOR_CYAN);
 };
 
 /*
@@ -176,10 +256,107 @@ This function doesn't have to do anything. Any value returned is ignored.
 [options : Object] = A JavaScript object with optional data properties; see API documentation for details.
 */
 
+
 PS.keyDown = function( key, shift, ctrl, options ) {
 	// Uncomment the following code line to inspect first three parameters:
+    let oldX=player.xcoord;
+    let oldY=player.ycoord;
+    let newX=player.xcoord;
+    let newY=player.ycoord;
+    let horizontalDir=0;
+    let verticalDir=0;
+	//PS.debug( "PS.keyDown(): key=" + key + ", shift=" + shift + ", ctrl=" + ctrl + "\n" );
+    switch(key){
+        case 1008:
+        case 115:
+            newY+=1;
+            verticalDir=1;
+            if (newY>=15){
+                newY=15;
+            }
+            break;
+        case 1007:
+        case 100:
+            newX+=1;
+            horizontalDir=1;
+            if (newX>=15){
+                newX=15;
+            }
+            break;
+        case 1006:
+        case 119:
+            newY-=1;
+            verticalDir=-1;
+            if (newY<=0){
+                newY=0;
+            }
+            break;
+        case 1005://left or a
+        case 97:
+            newX-=1;
+            horizontalDir=-1;
+            if (newX<=0){
+                newX=0;
+            }
+            break;
+    }
+    //check to see if the change to x is blocked
+    let type=PS.data(newX,newY)[1];
+    switch (type){
+        case -1:{//move to next map
+            let mapID=PS.data(newX,newY)[2][0];
 
-	// PS.debug( "PS.keyDown(): key=" + key + ", shift=" + shift + ", ctrl=" + ctrl + "\n" );
+            mapBuild(mapID);
+            if (horizontalDir==1){
+                player.xcoord=0;
+            }
+            else if (horizontalDir==-1){
+                player.xcoord=15;
+            }
+            if (verticalDir==1){
+                player.ycoord=0;
+            }
+            else if (verticalDir==-1){
+                player.ycoord=15;
+            }
+            PS.color(player.xcoord,player.ycoord,PS.COLOR_CYAN);
+            break;
+        }
+        case 0:{//kjust move
+            //gets the default misc_arrays
+            let oldData=PS.data(oldX,oldY)[3];
+            let oldData2=PS.data(newX,newY)[3];
+            PS.color(oldX,oldY,PS.COLOR_WHITE);
+            //PS.data(oldX,oldY,oldData)
+            PS.color(newX,newY,PS.COLOR_CYAN);
+            player.xcoord=newX;
+            player.ycoord=newY;
+            //S.data(newX,newY)
+            break;
+        }
+        case 1:{
+            if (PS.data(newX,newY)[2][0]==0){//unmovable wall
+                newX=oldX;
+                newY=oldY;
+            }
+            else{//need to move wall
+                //the data sticks close to player, need to fix
+                let moveX=newX+horizontalDir;
+                let moveY=newY+verticalDir;
+                if (PS.data(moveX,moveY)[1]==0) {//can move the block
+                    let oldData=[PS.COLOR_WHITE,0,[0],PS.data(newX,newY)[3]];
+                    let oldData2=[PS.data(newX,newY)[0],1,PS.data(newX,newY)[2],PS.data(moveX,moveY)[3]];
+                    PS.color(moveX,moveY,getColor(PS.data(newX,newY)[0]));
+                    PS.data(newX,newY,oldData);
+                    PS.color(newX,newY,PS.COLOR_WHITE);
+                    PS.data(moveX,moveY,oldData2);
+                }
+                newX=oldX;
+                newY=oldY;
+            }
+            break;
+        }
+    }
 
 	// Add code here for when a key is pressed.
 };
