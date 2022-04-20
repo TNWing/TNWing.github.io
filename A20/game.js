@@ -358,19 +358,21 @@ PS.keyDown = function( key, shift, ctrl, options ) {
                 newY=oldY;
             }
             else{//need to move wall
-                //the data sticks close to player, need to fix
+                //also, need to check to see if the wall is at the edge of the screen, so
                 let moveX=newX+horizontalDir;
                 let moveY=newY+verticalDir;
-                if (PS.data(moveX,moveY)[1]==0) {//can move the block
-                    let oldData=[PS.COLOR_WHITE,0,[0],PS.data(newX,newY)[3]];
-                    let oldData2=[PS.data(newX,newY)[0],1,PS.data(newX,newY)[2],PS.data(moveX,moveY)[3]];
-                    PS.color(moveX,moveY,getColor(PS.data(newX,newY)[0]));
-                    PS.data(newX,newY,oldData);
-                    PS.color(newX,newY,PS.COLOR_WHITE);
-                    PS.data(moveX,moveY,oldData2);
+                if (moveX>=0 && moveX<=15 && moveY>=0 && moveY<=15){
+                    if (PS.data(moveX,moveY)[1]==0) {//can move the block
+                        let oldData=[PS.COLOR_WHITE,0,[0],PS.data(newX,newY)[3]];
+                        let oldData2=[PS.data(newX,newY)[0],1,PS.data(newX,newY)[2],PS.data(moveX,moveY)[3]];
+                        PS.color(moveX,moveY,getColor(PS.data(newX,newY)[0]));
+                        PS.data(newX,newY,oldData);
+                        PS.color(newX,newY,PS.COLOR_WHITE);
+                        PS.data(moveX,moveY,oldData2);
+                    }
+                    newX=oldX;
+                    newY=oldY;
                 }
-                newX=oldX;
-                newY=oldY;
             }
             break;
         }
@@ -517,8 +519,6 @@ var beadFlash=function(t,x,y,c1,c2,r,i){
             flashTimer=PS.timerStart(t,beadFlash,t,x,y,c1,c2,r-1,1);
         }
     }
-
-
 }
 /*
 PS.keyUp ( key, shift, ctrl, options )
