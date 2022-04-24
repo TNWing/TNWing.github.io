@@ -134,6 +134,7 @@ var mapBuild=function(mapNum) {//why is levelbuild being called const
             //invalid level
         }
     }
+    PS.border ( PS.ALL, PS.ALL,0)
     if (map!=null){
         let x=0;
         let y=0;
