@@ -51,9 +51,20 @@ Any value returned is ignored.
 //[color,type,misc_array]
 //misc_array is an array of any size, as type will detemrine what the values in misc_array represent
 //misc_array will always have at least 1 value, which contains whether or not the player is on that bead
+
+
+var mapNum=0;
 var inventory=[]
 
+//need to find a way to save maps
 
+var mapList=[]
+//idea: use map copy to add to map list, and just utilize mapList
+
+var mapInit=function(){
+    mapList.push(mapCopy(mapstart));
+    mapList.push(mapCopy(map0_0));
+}
 
 var customColors={
 }
@@ -70,15 +81,17 @@ var resetGrid=function(){
 var getColor=function(i){
     let color=null;
     switch (i){
-        case -1:{//white
+        case -1:{//yellow move to next section color
             color=[229,255,102];
             break;
         }
         case 0:{//white
+            //PS.debug("HEY WHITE");
             color=PS.COLOR_WHITE;
             break;
         }
         case 1:{
+            PS.debug("NO");
             color=PS.COLOR_BLACK;
             break;
         }
@@ -116,17 +129,14 @@ var mapCopy=function(map){
     return newMap;
 }
 
-var mapBuild=function(mapNum) {//why is levelbuild being called const
-    let map = null;
+var mapBuild=function() {//why is levelbuild being called const
     resetGrid();
     switch (mapNum) {
         case 0: {
-            map = mapstart;
             PS.statusText("A beginning");
             break;
         }
         case 1: {
-            map = map0_0;
             PS.statusText("Pirate Treasure");
             break;
         }
@@ -135,13 +145,13 @@ var mapBuild=function(mapNum) {//why is levelbuild being called const
         }
     }
     PS.border ( PS.ALL, PS.ALL,0)
-    if (map!=null){
+    if (mapList[mapNum]!=null){
         let x=0;
         let y=0;
-        for (let i=0;i<map.length;i++){
-            let c=map[i][0];
+        for (let i=0;i<mapList[mapNum].length;i++){
+            let c=mapList[mapNum][i][0];
             PS.color(x,y,getColor(c));//why all balck
-            PS.data(x,y,map[i]);
+            PS.data(x,y,mapList[mapNum][i]);
             x++;
             if (x>15){
                 x=0;
@@ -150,8 +160,31 @@ var mapBuild=function(mapNum) {//why is levelbuild being called const
             }
         }
     }
-
 }
+
+//need to have data changed when interacting first!
+//data is cchanged, why not saving
+//top row turns black, for some reason it defaults to black even if it shouldn't
+//tiles you moved the block from get turned black
+var saveMap=function(mapNum){
+    let x=0;
+    let y=0;
+    //maybe make new map
+    for (let i=0;i<mapList[mapNum].length;i++){
+        mapList[mapNum][i]=PS.data(x,y);
+        x++;
+        if (x>15){
+            x=0;
+            y++;
+            PS.debug("\n\n");
+        }
+    }
+}
+
+//data and save map issues
+//the full data is only "preserved" for the first bead in each row (This is inconsistent)
+//for some reason, its not actually preserved
+//every other bead ends up missing its first entry in the data array
 
 PS.init = function( system, options ) {
     player.xcoord=4;
@@ -165,9 +198,10 @@ PS.init = function( system, options ) {
 	// change the string parameter as needed.
 
 	// PS.statusText( "Game" );
-
+    mapNum=0;
+    mapInit();
 	// Add any other initialization code you need here.
-    mapBuild(0);
+    mapBuild();
     PS.color(player.xcoord,player.ycoord,PS.COLOR_CYAN);
 };
 
@@ -322,8 +356,9 @@ PS.keyDown = function( key, shift, ctrl, options ) {
     //doesn't do multiple types i think
     switch (type){
         case -1:{//move to next map
-            let mapID=PS.data(newX,newY)[2][0];
-            mapBuild(mapID);
+            saveMap(mapNum);
+            mapNum=PS.data(newX,newY)[2][0];
+            mapBuild();
             if (horizontalDir==1){
                 player.xcoord=0;
             }
@@ -339,7 +374,8 @@ PS.keyDown = function( key, shift, ctrl, options ) {
             PS.color(player.xcoord,player.ycoord,PS.COLOR_CYAN);
             break;
         }
-        case 0:{//kjust move
+        //start to save data changes
+        case 0:{//no data should change as it was just a blank tile before
             //gets the default misc_arrays
             let oldData=PS.data(oldX,oldY)[3];
             let oldData2=PS.data(newX,newY)[3];
@@ -347,6 +383,7 @@ PS.keyDown = function( key, shift, ctrl, options ) {
             let type1=PS.data(oldX,oldY)[1];
             adjustCurrentBead(oldX,oldY,type1)
             //PS.data(oldX,oldY,oldData)
+            PS.color(oldX,oldY,getColor(PS.data(oldX,oldY)[0]));
             PS.color(newX,newY,PS.COLOR_CYAN);
             player.xcoord=newX;
             player.ycoord=newY;
@@ -360,11 +397,12 @@ PS.keyDown = function( key, shift, ctrl, options ) {
             }
             else{//need to move wall
                 //also, need to check to see if the wall is at the edge of the screen, so
+                //change data for old tile to become standard tile
                 let moveX=newX+horizontalDir;
                 let moveY=newY+verticalDir;
                 if (moveX>=0 && moveX<=15 && moveY>=0 && moveY<=15){
                     if (PS.data(moveX,moveY)[1]==0) {//can move the block
-                        let oldData=[PS.COLOR_WHITE,0,[0],PS.data(newX,newY)[3]];
+                        let oldData=[0,0,[0],PS.data(newX,newY)[3]];
                         let oldData2=[PS.data(newX,newY)[0],1,PS.data(newX,newY)[2],PS.data(moveX,moveY)[3]];
                         PS.color(moveX,moveY,getColor(PS.data(newX,newY)[0]));
                         PS.data(newX,newY,oldData);
