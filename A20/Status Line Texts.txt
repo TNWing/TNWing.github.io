@@ -21,3 +21,19 @@ If the player reaches the end of the maze: That wasn't too hard.
 If the player interacts with a grey block around the pink block: Is there something there...?
 If the player goes to the opposite end of the maze (pictured): You don't need to be there.
 If the player finds the easter egg block: It's an Easter Egg. (chicken noise)
+
+Screen 4: The mouth
+Starting text: What the...
+If push grey block: I didn't make this room.
+If push new grey block: Do whatever you want.
+If push new grey block: ...
+If push new grey block: An easter egg...
+
+Screen 5: The button
+Starting text: Follow your dreams...
+If push the button: It doesn't do anything.
+
+IF the player goes all the way back to the maze, they find that the walls around the previously inaccessible pink dot is now accessible. 
+When interacted with, it says: An easter... egg?
+
+The game only ends when the player finds all eggs.
