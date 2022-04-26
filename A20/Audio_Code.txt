@@ -1,14 +1,4 @@
-	PS.audioLoad("chicken", { fileTypes: ["wav"], path: "Audio/" });
-	PS.audioLoad("concrete_step1", { fileTypes: ["wav"], path: "Audio/" });
-	PS.audioLoad("concrete_step2", { fileTypes: ["wav"], path: "Audio/" });
-	PS.audioLoad("concrete_step3", { fileTypes: ["wav"], path: "Audio/" });
-	PS.audioLoad("concrete_step4", { fileTypes: ["wav"], path: "Audio/" });
-	PS.audioLoad("push", { fileTypes: ["wav"], path: "Audio/" });
-	PS.audioLoad("tile_step1", { path: "Audio/" });
-	PS.audioLoad("tile_step2", { path: "Audio/" });
-	PS.audioLoad("tile_step3", { path: "Audio/" });
 
-	PS.audioPlay("concrete_step"+(PS.random(4)).toString(), { fileTypes: ["wav"], path: "audio/" });
 	PS.audioPlay("tile_step"+(PS.random(3)).toString(), {  path: "audio/" });
 	PS.audioPlay("chicken", { fileTypes: ["wav"], path: "Audio/" });
 	PS.audioPlay("push", { fileTypes: ["wav"], path: "Audio/" });

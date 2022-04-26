@@ -70,6 +70,7 @@ var completedPuzzles=[];
 //0 for finished
 //1 for easter egg found
 
+
 var updateStatus=function(){
     let statusIndex=roomStatus[mapNum];
     switch(mapNum){
@@ -90,6 +91,7 @@ var updateStatus=function(){
                 }
                 case 21:{
                     PS.statusText("Fine! Take the stupid egg!");
+                    PS.audioPlay("chicken", { fileTypes: ["wav"], path: "Audio/" });
                     roomStatus[3]=22;
                     break;
                 }
@@ -304,6 +306,18 @@ PS.init = function( system, options ) {
     mapInit();
 	// Add any other initialization code you need here.
     mapBuild();
+
+    PS.audioLoad("chicken", { fileTypes: ["wav"], path: "Audio/" });
+    PS.audioLoad("concrete_step1", { fileTypes: ["wav"], path: "Audio/" , volume:0.7});
+    PS.audioLoad("concrete_step2", { fileTypes: ["wav"], path: "Audio/" , volume:0.7 });
+    PS.audioLoad("concrete_step3", { fileTypes: ["wav"], path: "Audio/" , volume:0.7 });
+    PS.audioLoad("concrete_step4", { fileTypes: ["wav"], path: "Audio/"  , volume:0.7});
+    PS.audioLoad("push", { fileTypes: ["wav"], path: "Audio/" });
+    PS.audioLoad("tile_step1", { path: "Audio/" });
+    PS.audioLoad("tile_step2", { path: "Audio/" });
+    PS.audioLoad("tile_step3", { path: "Audio/" });
+
+
     PS.color(player.xcoord,player.ycoord,PS.COLOR_CYAN);
 };
 
@@ -450,6 +464,8 @@ PS.keyDown = function( key, shift, ctrl, options ) {
             }
             break;
     }
+
+    PS.audioPlay("concrete_step"+(PS.random(4)).toString(), { fileTypes: ["wav"], path: "audio/" });
     //check to see if the change to x is blocked
     //also will need to update old stuff
     let typeOld=PS.data(oldX,oldY)[1];
@@ -463,6 +479,7 @@ PS.keyDown = function( key, shift, ctrl, options ) {
             PS.data(newX,newY,[0,0,[0],[0]]);
             player.xcoord=newX;
             player.ycoord=newY;
+            PS.audioPlay("chicken", { fileTypes: ["wav"], path: "Audio/" });
             switch(mapNum){
                 case 2:{
                     PS.statusText("Stop taking stuff you don't need!");
@@ -520,6 +537,7 @@ PS.keyDown = function( key, shift, ctrl, options ) {
             else{//need to move wall
                 //also, need to check to see if the wall is at the edge of the screen, so
                 //change data for old tile to become standard tile
+                PS.audioPlay("push", { fileTypes: ["wav"], path: "Audio/" });
                 let moveX=newX+horizontalDir;
                 let moveY=newY+verticalDir;
                 if (moveX>=0 && moveX<=15 && moveY>=0 && moveY<=15){
@@ -538,6 +556,7 @@ PS.keyDown = function( key, shift, ctrl, options ) {
             break;
         }
         case 2:{
+            PS.audioPlay("tile_step"+(PS.random(3)).toString(), {  path: "audio/" });
             PS.color(oldX,oldY,getColor(PS.data(oldX,oldY)[0]));
             //PS.debug(newX+","+newY+"\t");
             if (PS.data(newX,newY)[0]==4){
@@ -660,6 +679,7 @@ var checkPuzzle=function(i){
                     }
                 }
                 if (valid){
+                    PS.audioPlay("chicken", { fileTypes: ["wav"], path: "Audio/" });
                     PS.statusText("Hey! You weren't supposed to find that!");
                     completedPuzzles[1]=1;
                     //dig up treasure
