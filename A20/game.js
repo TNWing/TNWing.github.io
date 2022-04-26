@@ -61,12 +61,110 @@ var inventory=[]
 //need to find a way to save maps
 
 var mapList=[]
+
+var roomStatus=[];//status update while in room
+
+
+var completedPuzzles=[];
+//-1 for not completed
+//0 for finished
+//1 for easter egg found
+
+var updateStatus=function(){
+    let statusIndex=roomStatus[mapNum];
+    switch(mapNum){
+        case 0:{
+            break;
+        }
+        case 1:{
+            break;
+        }
+        case 2:{
+            break;
+        }
+        case 3:{
+            switch(statusIndex){
+                case 0:{
+                    PS.statusText("Green is good");
+                    break;
+                }
+                case 21:{
+                    PS.statusText("Fine! Take the stupid egg!");
+                    roomStatus[3]=22;
+                    break;
+                }
+                default:{
+                    PS.statusText("Hey, stop that!");
+                    break;
+                }
+            }
+            break;
+        }
+    }
+}
+
+var loadStatus=function(){//status changes based on completed puzzle or not
+    let statusIndex=completedPuzzles[mapNum];
+    switch(mapNum){
+        case 0: {
+            PS.statusText("A Beginning");
+            break;
+        }
+        case 1: {
+            switch(statusIndex){
+                case -1:{
+                    PS.statusText("Pirate Treasure");
+                    break;
+                }
+                case 0:{
+                    PS.statusText("What are you looking for?");
+                    break;
+                }
+                case 1:{
+                    PS.statusText("");
+                    break;
+                }
+            }
+            break;
+        }
+        case 2:{
+            PS.statusText("A Simple Maze");
+            break;
+        }
+        case 3:{
+            switch(statusIndex){
+                case -1:{
+                    PS.statusText("Green is good");
+                    break;
+                }
+                case 0:{
+                    PS.statusText("Why are you here again?");
+                    break;
+                }
+                case 1:{
+                    PS.statusText("");
+                    break;
+                }
+            }
+            break;
+        }
+    }
+}
 //idea: use map copy to add to map list, and just utilize mapList
 
 var mapInit=function(){
     mapList.push(mapCopy(mapstart));
+    roomStatus.push(0);
+    completedPuzzles.push(-1);
     mapList.push(mapCopy(mapPirate));
+    roomStatus.push(0);
+    completedPuzzles.push(-1);
     mapList.push(mapCopy(mapMaze1));
+    roomStatus.push(0);
+    completedPuzzles.push(-1);
+    mapList.push(mapCopy(mapChoose1))
+    roomStatus.push(0);
+    completedPuzzles.push(-1);
 }
 
 var customColors={
@@ -121,6 +219,14 @@ var getColor=function(i){
             color=[137, 120, 137];
             break;
         }
+        case 8:{//orange
+            color=[255, 145, 23];
+            break;
+        }
+        case 9:{//green
+            color=[67, 255, 128];
+            break;
+        }
         default:{
             color=-1;
             break;
@@ -141,19 +247,7 @@ var mapCopy=function(map){
 
 var mapBuild=function() {//why is levelbuild being called const
     resetGrid();
-    switch (mapNum) {
-        case 0: {
-            PS.statusText("A beginning");
-            break;
-        }
-        case 1: {
-            PS.statusText("Pirate Treasure");
-            break;
-        }
-        default: {
-            //invalid level
-        }
-    }
+    loadStatus();
     PS.border ( PS.ALL, PS.ALL,0)
     if (mapList[mapNum]!=null){
         let x=0;
@@ -359,8 +453,8 @@ PS.keyDown = function( key, shift, ctrl, options ) {
     }
     //check to see if the change to x is blocked
     //also will need to update old stuff
-    let type1=PS.data(oldX,oldY)[1];
-    adjustCurrentBead(oldX,oldY,type1)
+    let typeOld=PS.data(oldX,oldY)[1];
+    adjustCurrentBead(oldX,oldY,typeOld)
     let type=PS.data(newX,newY)[1];
     //doesn't do multiple types i think
     switch (type){
@@ -373,8 +467,12 @@ PS.keyDown = function( key, shift, ctrl, options ) {
             break;
         }
         case -1:{//teleporter
-            if (PS.data(oldX,oldY)[1]==-1 && (oldX!=newX||oldY!=oldY)){//this part doesnt work, not priority though
-                PS.debug("HEYO");
+            PS.debug(oldX+ " " + oldY + "   " + newX + " " + newY+"\n");
+            if (typeOld==-1){//this part doesnt work, not priority though// && (oldX!=newX||oldY!=oldY)
+                PS.color(oldX,oldY,getColor(PS.data(oldX,oldY)[0]));
+                PS.color(newX,newY,PS.COLOR_CYAN);
+                player.xcoord=newX;
+                player.ycoord=newY;
                 break;
             }
             saveMap(mapNum);
@@ -384,6 +482,9 @@ PS.keyDown = function( key, shift, ctrl, options ) {
             if (mapNum!=num){//move to new map
                 mapNum=num;
                 mapBuild();
+            }
+            else{
+                PS.color(oldX,oldY,PS.COLOR_WHITE);
             }
             player.xcoord=x;
             player.ycoord=y;
@@ -395,9 +496,8 @@ PS.keyDown = function( key, shift, ctrl, options ) {
             //gets the default misc_arrays
             let oldData=PS.data(oldX,oldY)[3];
             let oldData2=PS.data(newX,newY)[3];
-            PS.color(oldX,oldY,PS.COLOR_WHITE);
-            let type1=PS.data(oldX,oldY)[1];
-            adjustCurrentBead(oldX,oldY,type1)
+            let typeOld=PS.data(oldX,oldY)[1];
+            adjustCurrentBead(oldX,oldY,typeOld)
             //PS.data(oldX,oldY,oldData)
             PS.color(oldX,oldY,getColor(PS.data(oldX,oldY)[0]));
             PS.color(newX,newY,PS.COLOR_CYAN);
@@ -432,9 +532,6 @@ PS.keyDown = function( key, shift, ctrl, options ) {
             break;
         }
         case 2:{
-//path that changes attribute/color when walked over
-            //ONLY HERE AS WELL
-            //PS.debug(newX+","+newY+"\t");
             PS.color(oldX,oldY,getColor(PS.data(oldX,oldY)[0]));
             //PS.debug(newX+","+newY+"\t");
             if (PS.data(newX,newY)[0]==4){
@@ -461,25 +558,13 @@ PS.keyDown = function( key, shift, ctrl, options ) {
                 }
                 PS.data(newX,newY,[4,2,entry3,[0]]);
             }
-            //PS.data(oldX,oldY,oldData)
-            //if leave path, then it doesn't recolor the old tile for some god forsaken reason
-            //
             PS.color(newX,newY,PS.COLOR_CYAN);
             player.xcoord=newX;
             player.ycoord=newY;
-            //PS.debug(oldX + "   " + oldY + " TO " + player.xcoord + "   " + player.ycoord);
-            //horizontal/vertical dirs are fine, its something else
-            //4   7 TO 5   5   5   5 TO 6   6   6   6 TO 7   7
-            //but why
-            //PS.debug(PS.color(oldX,oldY)+"\n");
             break;
         }
         case 4:{
-            PS.color(oldX,oldY,getColor(PS.data(oldX,oldY)[0]));
-            PS.color(newX,newY,PS.COLOR_CYAN);
-            player.xcoord=newX;
-            player.ycoord=newY;
-            reactorActions(newX,newY,PS.data(newX,newY)[2]);
+            reactorActions(oldX,oldY,newX,newY,PS.data(newX,newY)[2]);
             break;
         }
     }
@@ -591,21 +676,66 @@ var checkPuzzle=function(i){
 }
 //list of actions for reactor beads (type 4)
 
-var reactorActions=function(x,y,data){
+var reactorActions=function(oldX,oldY,newX,newY,data){
     let actionType=data[1];
     switch(actionType){
         case 0:{//this collects the easter egg
+            PS.color(oldX,oldY,getColor(PS.data(oldX,oldY)[0]));
+            PS.color(newX,newY,PS.COLOR_CYAN);
+            player.xcoord=newX;
+            player.ycoord=newY;
             break;
         }
         case 1:{//deletes given beads
+            PS.color(oldX,oldY,getColor(PS.data(oldX,oldY)[0]));
+            PS.color(newX,newY,PS.COLOR_CYAN);
+            player.xcoord=newX;
+            player.ycoord=newY;
             for (let i=0;i<data.length-2;i++){
                 let delX=data[i+2][0];
                 let delY=data[i+2][1];
                 PS.data(delX,delY,[0,0,[0],[0]]);
                 PS.color(delX,delY,PS.COLOR_WHITE);
             }
-
             break;
+        }
+        case 2:{//reduces a counter when attempting to collide. Breaks after X collisions
+            let newData=data;
+            newData[2]=newData[2]-1;
+            let puzzleNum=newData[0];
+            if (newData[2]<=0){//if counter is less than 0, breaks the "wall"
+                PS.data(newX,newY,[0,0,[0],[0]]);
+                PS.color(oldX,oldY,getColor(PS.data(oldX,oldY)[0]));
+                PS.color(newX,newY,PS.COLOR_CYAN);
+                player.xcoord=newX;
+                player.ycoord=newY;
+                switch(puzzleNum){
+                    case 4:{
+                        if (newX==12){
+                            roomStatus[3]=roomStatus[3]+1;
+                            completedPuzzles[3]=1;
+                            updateStatus();
+                        }
+                        else if (completedPuzzles[3]!=1){
+                            completedPuzzles[3]=0;
+                        }
+                        break;
+                    }
+                }
+            }
+            else{
+                let dataArr=PS.data(newX,newY);
+                dataArr[2]=newData;
+                PS.data(newX,newY,dataArr);
+                switch(puzzleNum){
+                    case 4:{
+                        roomStatus[3]=roomStatus[3]+1;
+                        updateStatus();
+                        break;
+                    }
+                }
+            }
+
         }
     }
 
