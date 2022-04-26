@@ -52,7 +52,9 @@ Any value returned is ignored.
 //misc_array is an array of any size, as type will detemrine what the values in misc_array represent
 //misc_array will always have at least 1 value, which contains whether or not the player is on that bead
 
-
+//note: as player position upon loading map is dependent on player dir, its an issue
+//make it so the misc_array stores the value of the position the player moves to?
+//also, player should not teleport to new map if they move along the teleporting beads (ie: move from 1 teleport cell to another)
 var mapNum=0;
 var inventory=[]
 
@@ -63,7 +65,8 @@ var mapList=[]
 
 var mapInit=function(){
     mapList.push(mapCopy(mapstart));
-    mapList.push(mapCopy(map0_0));
+    mapList.push(mapCopy(mapPirate));
+    mapList.push(mapCopy(mapMaze1));
 }
 
 var customColors={
@@ -91,16 +94,15 @@ var getColor=function(i){
             break;
         }
         case 1:{
-            PS.debug("NO");
             color=PS.COLOR_BLACK;
             break;
         }
         case 2:{
-            color=PS.COLOR_GRAY;
+            color=[137,137,137];
             break;
         }
-        case 3:{
-            color=PS.COLOR_GRAY_LIGHT;
+        case 3:{//supposed to be similar to gray but marginally lighter
+            color=[115,115,115];
             break;
         }
         case 4:{
@@ -109,6 +111,14 @@ var getColor=function(i){
         }
         case 5:{
             color=PS.COLOR_MAGENTA;
+            break;
+        }
+        case 6:{//pink
+            color=[206, 77, 190];
+            break;
+        }
+        case 7:{//gray with hint of pink
+            color=[137, 120, 137];
             break;
         }
         default:{
@@ -176,7 +186,6 @@ var saveMap=function(mapNum){
         if (x>15){
             x=0;
             y++;
-            PS.debug("\n\n");
         }
     }
 }
@@ -355,22 +364,29 @@ PS.keyDown = function( key, shift, ctrl, options ) {
     let type=PS.data(newX,newY)[1];
     //doesn't do multiple types i think
     switch (type){
-        case -1:{//move to next map
+        case -2:{//egg collectible
+            PS.color(oldX,oldY,getColor(PS.data(oldX,oldY)[0]));
+            PS.color(newX,newY,PS.COLOR_CYAN);
+            PS.data(newX,newY,[0,0,[0],[0]]);
+            player.xcoord=newX;
+            player.ycoord=newY;
+            break;
+        }
+        case -1:{//teleporter
+            if (PS.data(oldX,oldY)[1]==-1 && (oldX!=newX||oldY!=oldY)){//this part doesnt work, not priority though
+                PS.debug("HEYO");
+                break;
+            }
             saveMap(mapNum);
-            mapNum=PS.data(newX,newY)[2][0];
-            mapBuild();
-            if (horizontalDir==1){
-                player.xcoord=0;
+            let num=PS.data(newX,newY)[2][0];
+            let x=PS.data(newX,newY)[2][1][0];
+            let y=PS.data(newX,newY)[2][1][1];
+            if (mapNum!=num){//move to new map
+                mapNum=num;
+                mapBuild();
             }
-            else if (horizontalDir==-1){
-                player.xcoord=15;
-            }
-            if (verticalDir==1){
-                player.ycoord=0;
-            }
-            else if (verticalDir==-1){
-                player.ycoord=15;
-            }
+            player.xcoord=x;
+            player.ycoord=y;
             PS.color(player.xcoord,player.ycoord,PS.COLOR_CYAN);
             break;
         }
@@ -391,7 +407,7 @@ PS.keyDown = function( key, shift, ctrl, options ) {
             break;
         }
         case 1:{
-            if (PS.data(newX,newY)[2][0]==0){//unmovable wall
+            if (PS.data(newX,newY)[2][1]==0){//unmovable wall
                 newX=oldX;
                 newY=oldY;
             }
@@ -415,17 +431,35 @@ PS.keyDown = function( key, shift, ctrl, options ) {
             }
             break;
         }
-        case 2:{//path that changes attribute/color when walked over
+        case 2:{
+//path that changes attribute/color when walked over
             //ONLY HERE AS WELL
             //PS.debug(newX+","+newY+"\t");
-
             PS.color(oldX,oldY,getColor(PS.data(oldX,oldY)[0]));
             //PS.debug(newX+","+newY+"\t");
             if (PS.data(newX,newY)[0]==4){
-                PS.data(newX,newY,[5,2,[5],[0]]);
+                let entry3=[];
+                let dataArr=PS.data(newX,newY)[2];
+                let puzzleNum=dataArr.shift();
+                dataArr.shift();
+                entry3.push(puzzleNum);
+                entry3.push(5);
+                for (let i=0;i<dataArr.length;dataArr++){
+                    entry3.push(dataArr[i]);
+                }
+                PS.data(newX,newY,[5,2,entry3,[0]]);
             }
             else {
-                PS.data(newX,newY,[4,2,[4],[0]]);
+                let entry3=[];
+                let dataArr=PS.data(newX,newY)[2];
+                let puzzleNum=dataArr.shift();
+                dataArr.shift();
+                entry3.push(puzzleNum);
+                entry3.push(4);
+                for (let i=0;i<dataArr.length;dataArr++){
+                    entry3.push(dataArr[i]);
+                }
+                PS.data(newX,newY,[4,2,entry3,[0]]);
             }
             //PS.data(oldX,oldY,oldData)
             //if leave path, then it doesn't recolor the old tile for some god forsaken reason
@@ -440,6 +474,14 @@ PS.keyDown = function( key, shift, ctrl, options ) {
             //PS.debug(PS.color(oldX,oldY)+"\n");
             break;
         }
+        case 4:{
+            PS.color(oldX,oldY,getColor(PS.data(oldX,oldY)[0]));
+            PS.color(newX,newY,PS.COLOR_CYAN);
+            player.xcoord=newX;
+            player.ycoord=newY;
+            reactorActions(newX,newY,PS.data(newX,newY)[2]);
+            break;
+        }
     }
 
 	// Add code here for when a key is pressed.
@@ -450,7 +492,8 @@ var adjustCurrentBead=function(x,y,type){
     switch(type){
         case 2:{
             PS.color(x,y,getColor(PS.data(x,y)[0]));
-            checkPathPuzzle(1);
+            let puzzleNum=PS.data(x,y,)[2][0];
+            checkPuzzle(puzzleNum);
             //needs to change to stored color
             break;
         }
@@ -463,9 +506,9 @@ var adjustCurrentBead=function(x,y,type){
 //7
 //8
 //9
-var checkPathPuzzle=function(i){
+var checkPuzzle=function(i){
     switch(i){
-        case 1:{
+        case 2:{
             //first, check for standard win
             let allBeads=[[5,3],[6,4],[7,5],[8,6],[9,7],[9,3],[8,4],[6,6],[5,7],[6,3],[7,3],[8,3],
                 [5,4],[7,4],[9,4],
@@ -545,6 +588,27 @@ var checkPathPuzzle=function(i){
             }
         }
     }
+}
+//list of actions for reactor beads (type 4)
+
+var reactorActions=function(x,y,data){
+    let actionType=data[1];
+    switch(actionType){
+        case 0:{//this collects the easter egg
+            break;
+        }
+        case 1:{//deletes given beads
+            for (let i=0;i<data.length-2;i++){
+                let delX=data[i+2][0];
+                let delY=data[i+2][1];
+                PS.data(delX,delY,[0,0,[0],[0]]);
+                PS.color(delX,delY,PS.COLOR_WHITE);
+            }
+
+            break;
+        }
+    }
+
 }
 var beadFlash=function(t,x,y,c1,c2,r,i){
     PS.timerStop(flashTimer);
