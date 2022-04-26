@@ -128,7 +128,16 @@ var loadStatus=function(){//status changes based on completed puzzle or not
             break;
         }
         case 2:{
-            PS.statusText("A Simple Maze");
+            switch (statusIndex){
+                case -1:{
+                    PS.statusText("A Simple Maze");
+                    break;
+                }
+                case 1:{
+                    PS.statusText("");
+                    break;
+                }
+            }
             break;
         }
         case 3:{
@@ -167,8 +176,6 @@ var mapInit=function(){
     completedPuzzles.push(-1);
 }
 
-var customColors={
-}
 var player={//player represented by CYAN
     xcoord:0,
     ycoord:0,
@@ -266,10 +273,6 @@ var mapBuild=function() {//why is levelbuild being called const
     }
 }
 
-//need to have data changed when interacting first!
-//data is cchanged, why not saving
-//top row turns black, for some reason it defaults to black even if it shouldn't
-//tiles you moved the block from get turned black
 var saveMap=function(mapNum){
     let x=0;
     let y=0;
@@ -284,10 +287,6 @@ var saveMap=function(mapNum){
     }
 }
 
-//data and save map issues
-//the full data is only "preserved" for the first bead in each row (This is inconsistent)
-//for some reason, its not actually preserved
-//every other bead ends up missing its first entry in the data array
 
 PS.init = function( system, options ) {
     player.xcoord=4;
@@ -464,6 +463,13 @@ PS.keyDown = function( key, shift, ctrl, options ) {
             PS.data(newX,newY,[0,0,[0],[0]]);
             player.xcoord=newX;
             player.ycoord=newY;
+            switch(mapNum){
+                case 2:{
+                    PS.statusText("Stop taking stuff you don't need!");
+                    completedPuzzles[2]=1;
+                    break;
+                }
+            }
             break;
         }
         case -1:{//teleporter
@@ -698,6 +704,12 @@ var reactorActions=function(oldX,oldY,newX,newY,data){
                 let delY=data[i+2][1];
                 PS.data(delX,delY,[0,0,[0],[0]]);
                 PS.color(delX,delY,PS.COLOR_WHITE);
+            }
+            switch(mapNum){
+                case 2:{
+                    PS.statusText("Hey! You shouldn't be there!");
+                    break;
+                }
             }
             break;
         }
