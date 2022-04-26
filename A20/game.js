@@ -195,12 +195,12 @@ var getColor=function(i){
             color=PS.COLOR_BLACK;
             break;
         }
-        case 2:{
+        case 2:{//gray
             color=[137,137,137];
             break;
         }
         case 3:{//supposed to be similar to gray but marginally lighter
-            color=[115,115,115];
+            color=[122,122,122];
             break;
         }
         case 4:{
@@ -610,6 +610,7 @@ var checkPuzzle=function(i){
             }
             if (standardValid){
                 PS.statusText("That wasn't so hard, was it?");
+                completedPuzzles[1]=0;
             }
             else{
                 //then, secret win
@@ -654,6 +655,7 @@ var checkPuzzle=function(i){
                 }
                 if (valid){
                     PS.statusText("Hey! You weren't supposed to find that!");
+                    completedPuzzles[1]=1;
                     //dig up treasure
                     for (let i=0;i<XbeadList.length;i++){
                         let arr=XbeadList[i];
