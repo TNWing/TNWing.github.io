@@ -465,7 +465,7 @@ PS.keyDown = function( key, shift, ctrl, options ) {
             break;
     }
 
-    PS.audioPlay("concrete_step"+(PS.random(4)).toString(), { fileTypes: ["wav"], path: "audio/" });
+    PS.audioPlay("concrete_step"+(PS.random(4)).toString(), { fileTypes: ["wav"], path: "Audio/" });
     //check to see if the change to x is blocked
     //also will need to update old stuff
     let typeOld=PS.data(oldX,oldY)[1];
@@ -556,7 +556,7 @@ PS.keyDown = function( key, shift, ctrl, options ) {
             break;
         }
         case 2:{
-            PS.audioPlay("tile_step"+(PS.random(3)).toString(), {  path: "audio/" });
+            PS.audioPlay("tile_step"+(PS.random(3)).toString(), {  path: "Audio/" });
             PS.color(oldX,oldY,getColor(PS.data(oldX,oldY)[0]));
             //PS.debug(newX+","+newY+"\t");
             if (PS.data(newX,newY)[0]==4){
