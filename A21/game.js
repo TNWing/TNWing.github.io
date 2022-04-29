@@ -102,6 +102,30 @@ var updateStatus=function(){
             }
             break;
         }
+        case 4:{
+            switch(statusIndex){
+                case 0:{
+                    PS.statusText("What the...");
+                    break;
+                }
+                case 1:{
+                    PS.statusText("I didn't make this room.");
+                    break;
+                }
+                case 2:{
+                    PS.statusText("Do whatever you want.");
+                    break;
+                }
+                case 3:{
+                    PS.statusText("...");
+                    break;
+                }
+                case 4:{
+                    PS.statusText("An easter egg");
+                    break;
+                }
+            }
+        }
     }
 }
 
@@ -159,6 +183,9 @@ var loadStatus=function(){//status changes based on completed puzzle or not
             }
             break;
         }
+        case 4:{
+            updateStatus();
+        }
     }
 }
 //idea: use map copy to add to map list, and just utilize mapList
@@ -176,11 +203,16 @@ var mapInit=function(){
     mapList.push(mapCopy(mapChoose1))
     roomStatus.push(0);
     completedPuzzles.push(-1);
+    mapList.push(mapCopy(mapChain1));
+    roomStatus.push(0);
+    completedPuzzles.push(-1);
 }
 
 var player={//player represented by CYAN
     xcoord:0,
     ycoord:0,
+    horizontalDir:0,
+    verticalDir:0,
 }
 var resetGrid=function(){
     PS.data(PS.ALL,PS.ALL,0);
@@ -269,7 +301,6 @@ var mapBuild=function() {//why is levelbuild being called const
             if (x>15){
                 x=0;
                 y++;
-                //PS.debug("\n");
             }
         }
     }
@@ -316,8 +347,6 @@ PS.init = function( system, options ) {
     PS.audioLoad("tile_step1", { path: "Audio/" });
     PS.audioLoad("tile_step2", { path: "Audio/" });
     PS.audioLoad("tile_step3", { path: "Audio/" });
-
-
     PS.color(player.xcoord,player.ycoord,PS.COLOR_CYAN);
 };
 
@@ -371,9 +400,6 @@ This function doesn't have to do anything. Any value returned is ignored.
 var flashTimer;
 PS.enter = function( x, y, data, options ) {
 	// Uncomment the following code line to inspect x/y parameters:
-
-	// PS.debug( "PS.enter() @ " + x + ", " + y + "\n" );
-
 	// Add code here for when the mouse cursor/touch enters a bead.
 };
 
@@ -390,7 +416,6 @@ This function doesn't have to do anything. Any value returned is ignored.
 PS.exit = function( x, y, data, options ) {
 	// Uncomment the following code line to inspect x/y parameters:
 
-	// PS.debug( "PS.exit() @ " + x + ", " + y + "\n" );
 
 	// Add code here for when the mouse cursor/touch exits a bead.
 };
@@ -404,8 +429,6 @@ This function doesn't have to do anything. Any value returned is ignored.
 
 PS.exitGrid = function( options ) {
 	// Uncomment the following code line to verify operation:
-
-	// PS.debug( "PS.exitGrid() called\n" );
 
 	// Add code here for when the mouse cursor/touch moves off the grid.
 };
@@ -427,14 +450,13 @@ PS.keyDown = function( key, shift, ctrl, options ) {
     let oldY=player.ycoord;
     let newX=player.xcoord;
     let newY=player.ycoord;
-    let horizontalDir=0;
-    let verticalDir=0;
-	//PS.debug( "PS.keyDown(): key=" + key + ", shift=" + shift + ", ctrl=" + ctrl + "\n" );
+    player.horizontalDir=0;
+    player.verticalDir=0;
     switch(key){
         case 1008:
         case 115:
             newY+=1;
-            verticalDir=1;
+            player.verticalDir=1;
             if (newY>=15){
                 newY=15;
             }
@@ -442,7 +464,7 @@ PS.keyDown = function( key, shift, ctrl, options ) {
         case 1007:
         case 100:
             newX+=1;
-            horizontalDir=1;
+            player.horizontalDir=1;
             if (newX>=15){
                 newX=15;
             }
@@ -450,7 +472,7 @@ PS.keyDown = function( key, shift, ctrl, options ) {
         case 1006:
         case 119:
             newY-=1;
-            verticalDir=-1;
+            player.verticalDir=-1;
             if (newY<=0){
                 newY=0;
             }
@@ -458,13 +480,12 @@ PS.keyDown = function( key, shift, ctrl, options ) {
         case 1005://left or a
         case 97:
             newX-=1;
-            horizontalDir=-1;
+            player.horizontalDir=-1;
             if (newX<=0){
                 newX=0;
             }
             break;
     }
-
     PS.audioPlay("concrete_step"+(PS.random(4)).toString(), { fileTypes: ["wav"], path: "audio/" });
     //check to see if the change to x is blocked
     //also will need to update old stuff
@@ -490,7 +511,6 @@ PS.keyDown = function( key, shift, ctrl, options ) {
             break;
         }
         case -1:{//teleporter
-            PS.debug(oldX+ " " + oldY + "   " + newX + " " + newY+"\n");
             if (typeOld==-1){//this part doesnt work, not priority though// && (oldX!=newX||oldY!=oldY)
                 PS.color(oldX,oldY,getColor(PS.data(oldX,oldY)[0]));
                 PS.color(newX,newY,PS.COLOR_CYAN);
@@ -538,8 +558,8 @@ PS.keyDown = function( key, shift, ctrl, options ) {
                 //also, need to check to see if the wall is at the edge of the screen, so
                 //change data for old tile to become standard tile
                 PS.audioPlay("push", { fileTypes: ["wav"], path: "Audio/" });
-                let moveX=newX+horizontalDir;
-                let moveY=newY+verticalDir;
+                let moveX=newX+player.horizontalDir;
+                let moveY=newY+player.verticalDir;
                 if (moveX>=0 && moveX<=15 && moveY>=0 && moveY<=15){
                     if (PS.data(moveX,moveY)[1]==0) {//can move the block
                         let oldData=[0,0,[0],PS.data(newX,newY)[3]];
@@ -706,6 +726,7 @@ var checkPuzzle=function(i){
 
 var reactorActions=function(oldX,oldY,newX,newY,data){
     let actionType=data[1];
+    let puzzleNum=data[0];
     switch(actionType){
         case 0:{//this collects the easter egg
             PS.color(oldX,oldY,getColor(PS.data(oldX,oldY)[0]));
@@ -736,7 +757,6 @@ var reactorActions=function(oldX,oldY,newX,newY,data){
         case 2:{//reduces a counter when attempting to collide. Breaks after X collisions
             let newData=data;
             newData[2]=newData[2]-1;
-            let puzzleNum=newData[0];
             if (newData[2]<=0){//if counter is less than 0, breaks the "wall"
                 PS.data(newX,newY,[0,0,[0],[0]]);
                 PS.color(oldX,oldY,getColor(PS.data(oldX,oldY)[0]));
@@ -769,7 +789,80 @@ var reactorActions=function(oldX,oldY,newX,newY,data){
                     }
                 }
             }
-
+        }
+        case 3:{//triggers a change in another bead. May also be moved
+            //formar
+            //a: puzzleNum
+            //b: is actiontype
+            //c: movable or not
+            //format: [a,b,c,[coords],[num],activations]
+            //num: we use this to determine what data is changed
+            //# of activations left
+            switch(puzzleNum){
+                case 5:{
+                    let i=data[4];
+                    let nX=0;
+                    let nY=0;
+                    let move=data[2];
+                    let newData=data;
+                    newData[5]=newData[5]-1;
+                    let hasMove=false;
+                    if (move==1){
+                        PS.audioPlay("push", { fileTypes: ["wav"], path: "Audio/" });
+                        let moveX=newX+player.horizontalDir;
+                        let moveY=newY+player.verticalDir;
+                        if (moveX>=0 && moveX<=15 && moveY>=0 && moveY<=15){
+                            if (PS.data(moveX,moveY)[1]==0) {//can move the block
+                                let oldData=[0,0,[0],[0]];
+                                let oldData2=newData;
+                                PS.debug(newData);
+                                PS.color(moveX,moveY,getColor(3));
+                                PS.data(newX,newY,oldData);
+                                PS.color(newX,newY,PS.COLOR_WHITE);
+                                let updateData=[moveX,moveY];
+                                updateData.push(oldData2);
+                                updateData.push([0]);
+                                PS.data(moveX,moveY,updateData);
+                                hasMove=true;
+                            }
+                        }
+                        if (hasMove){
+                            updateStatus();
+                            switch (i){
+                                case 1:{
+                                    nX=7;
+                                    nY=12;
+                                    break;
+                                }
+                                case 2:{
+                                    nX=5;
+                                    nY=4;
+                                    break;
+                                }
+                                case 3:{
+                                    break;
+                                }
+                                default:{
+                                    break;
+                                }
+                            }
+                            if (data[5]>=0){
+                                roomStatus[mapNum]=roomStatus[mapNum]+=1;
+                                if (i==4){
+                                    PS.data(newX,newY,[6,-2,[5],[0]]);
+                                    PS.color(newX,newY,getColor(6));
+                                }
+                                else{
+                                    let coords=data[3];
+                                    PS.data(coords[0][0],coords[0][1],[3,4,[5,3,1,[[nX,nY]],i+1,1],[0]]);
+                                    PS.color(coords[0][0],coords[0][1],getColor(3));
+                                }
+                            }
+                        }
+                    }
+                    break;
+                }
+            }
         }
     }
 
