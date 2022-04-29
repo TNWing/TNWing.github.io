@@ -821,7 +821,6 @@ var reactorActions=function(oldX,oldY,newX,newY,data){
                                 let updateData=[3,4];
                                 updateData.push(oldData2);
                                 updateData.push([0]);
-                                PS.debug(updateData+"\t");
                                 PS.data(moveX,moveY,updateData);
                                 hasMove=true;
                             }
