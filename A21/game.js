@@ -815,13 +815,13 @@ var reactorActions=function(oldX,oldY,newX,newY,data){
                             if (PS.data(moveX,moveY)[1]==0) {//can move the block
                                 let oldData=[0,0,[0],[0]];
                                 let oldData2=newData;
-                                PS.debug(newData);
                                 PS.color(moveX,moveY,getColor(3));
                                 PS.data(newX,newY,oldData);
                                 PS.color(newX,newY,PS.COLOR_WHITE);
-                                let updateData=[moveX,moveY];
+                                let updateData=[3,4];
                                 updateData.push(oldData2);
                                 updateData.push([0]);
+                                PS.debug(updateData+"\t");
                                 PS.data(moveX,moveY,updateData);
                                 hasMove=true;
                             }
