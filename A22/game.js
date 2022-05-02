@@ -557,11 +557,11 @@ PS.keyDown = function( key, shift, ctrl, options ) {
             else{//need to move wall
                 //also, need to check to see if the wall is at the edge of the screen, so
                 //change data for old tile to become standard tile
-                PS.audioPlay("push", { fileTypes: ["wav"], path: "Audio/" });
                 let moveX=newX+player.horizontalDir;
                 let moveY=newY+player.verticalDir;
                 if (moveX>=0 && moveX<=15 && moveY>=0 && moveY<=15){
                     if (PS.data(moveX,moveY)[1]==0) {//can move the block
+                        PS.audioPlay("push", { fileTypes: ["wav"], path: "Audio/" });
                         let oldData=[0,0,[0],PS.data(newX,newY)[3]];
                         let oldData2=[PS.data(newX,newY)[0],1,PS.data(newX,newY)[2],PS.data(moveX,moveY)[3]];
                         PS.color(moveX,moveY,getColor(PS.data(newX,newY)[0]));
@@ -808,11 +808,11 @@ var reactorActions=function(oldX,oldY,newX,newY,data){
                     newData[5]=newData[5]-1;
                     let hasMove=false;
                     if (move==1){
-                        PS.audioPlay("push", { fileTypes: ["wav"], path: "Audio/" });
                         let moveX=newX+player.horizontalDir;
                         let moveY=newY+player.verticalDir;
                         if (moveX>=0 && moveX<=15 && moveY>=0 && moveY<=15){
                             if (PS.data(moveX,moveY)[1]==0) {//can move the block
+                                PS.audioPlay("push", { fileTypes: ["wav"], path: "Audio/" });
                                 let oldData=[0,0,[0],[0]];
                                 let oldData2=newData;
                                 PS.color(moveX,moveY,getColor(3));
