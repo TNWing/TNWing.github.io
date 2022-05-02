@@ -1,0 +1,4 @@
+
+	PS.audioPlay("tile_step"+(PS.random(3)).toString(), {  path: "audio/" });
+	PS.audioPlay("chicken", { fileTypes: ["wav"], path: "Audio/" });
+	PS.audioPlay("push", { fileTypes: ["wav"], path: "Audio/" });
