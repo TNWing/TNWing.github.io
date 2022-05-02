@@ -38,6 +38,12 @@ If you don't use JSHint (or are using it with a configuration file), you can saf
 
 "use strict"; // Do NOT remove this directive!
 
+/* chicken sound - rudmer_rotteveel https://freesound.org/people/Rudmer_Rotteveel/sounds/316920/
+    concrete steps - movingplaid https://freesound.org/people/movingplaid/
+    stone push - msavioti https://freesound.org/people/msavioti/sounds/558216/
+    tile steps - nuff3 https://freesound.org/people/nuFF3/
+    music - shortrecord https://freesound.org/people/ShortRecord/sounds/582032/
+
 /*
 PS.init( system, options )
 Called once after engine is initialized but before event-polling begins.
@@ -406,6 +412,8 @@ PS.init = function( system, options ) {
     PS.audioLoad("tile_step1", { path: "Audio/" });
     PS.audioLoad("tile_step2", { path: "Audio/" });
     PS.audioLoad("tile_step3", { path: "Audio/" });
+    PS.audioLoad("music", { fileTypes: ["mp3"], path: "Audio/" })
+    PS.audioPlay("music", {fileTypes: ["mp3"], path: "Audio/"})
     PS.color(player.xcoord,player.ycoord,PS.COLOR_CYAN);
 };
 
@@ -546,7 +554,7 @@ PS.keyDown = function( key, shift, ctrl, options ) {
             break;
     }
     if (player.horizontalDir!=0||player.verticalDir!=0){
-        PS.audioPlay("concrete_step"+(PS.random(4)).toString(), { fileTypes: ["wav"], path: "Audio/" });
+        PS.audioPlay("concrete_step"+(PS.random(4)).toString(), { fileTypes: ["wav"], path: "Audio/", volume:0.2 });
     }
     //check to see if the change to x is blocked
     //also will need to update old stuff
@@ -622,7 +630,7 @@ PS.keyDown = function( key, shift, ctrl, options ) {
                 let moveY=newY+player.verticalDir;
                 if (moveX>=0 && moveX<=15 && moveY>=0 && moveY<=15){
                     if (PS.data(moveX,moveY)[1]==0) {//can move the block
-                        PS.audioPlay("push", { fileTypes: ["wav"], path: "Audio/" });
+                        PS.audioPlay("push", { fileTypes: ["wav"], path: "Audio/", volume:0.5 });
                         let oldData=[0,0,[0],PS.data(newX,newY)[3]];
                         let oldData2=[PS.data(newX,newY)[0],1,PS.data(newX,newY)[2],PS.data(moveX,moveY)[3]];
                         PS.color(moveX,moveY,getColor(PS.data(newX,newY)[0]));
@@ -637,7 +645,7 @@ PS.keyDown = function( key, shift, ctrl, options ) {
             break;
         }
         case 2:{
-            PS.audioPlay("tile_step"+(PS.random(3)).toString(), {  path: "Audio/" });
+            PS.audioPlay("tile_step"+(PS.random(3)).toString(), {  path: "Audio/", volume:0.2 });
             PS.color(oldX,oldY,getColor(PS.data(oldX,oldY)[0]));
             //PS.debug(newX+","+newY+"\t");
             if (PS.data(newX,newY)[0]==4){
