@@ -304,6 +304,61 @@ var mapBuild=function() {//why is levelbuild being called const
             }
         }
     }
+    setBorderEdges()
+}
+
+var setBorderEdges=function(){
+    //set borders for edge beads
+    let topEdge={
+        top:1,
+        left:0,
+        bottom:0,
+        right:0,
+    }
+    let botEdge={
+        top:0,
+        left:0,
+        bottom:1,
+        right:0,
+    }
+    let leftEdge={
+        top:0,
+        left:1,
+        bottom:0,
+        right:0,
+    }
+    let rightEdge={
+        top:0,
+        left:0,
+        bottom:0,
+        right:1,
+    }
+    for (let x=1;x<15;x++){
+        PS.border (x,0,topEdge);
+        PS.border (x,15,botEdge);
+    }
+    for (let y=1;y<15;y++){
+        PS.border (0,y,leftEdge);
+        PS.border (15,y,rightEdge);
+    }
+    let corner={
+        top:1,
+        left:1,
+        bottom:0,
+        right:0,
+    }
+    //do corners next
+
+    PS.border(0,0,corner);
+    corner.left=0;
+    corner.right=1;
+    PS.border(15,0,corner);
+    corner.top=0;
+    corner.bottom=1;
+    PS.border(15,15,corner);
+    corner.right=0;
+    corner.left=1;
+    PS.border(0,15,corner);
 }
 
 var saveMap=function(mapNum){
