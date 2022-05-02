@@ -233,9 +233,9 @@ var getColor=function(i){
             color=[229,255,102];
             break;
         }
-        case 0:{//white
+        case 0:{//floor, some kind of light gray
             //PS.debug("HEY WHITE");
-            color=PS.COLOR_WHITE;
+            color=[201, 201, 201];
             break;
         }
         case 1:{
@@ -306,6 +306,13 @@ var mapBuild=function() {//why is levelbuild being called const
         for (let i=0;i<mapList[mapNum].length;i++){
             let c=mapList[mapNum][i][0];
             PS.color(x,y,getColor(c));//why all balck
+            if (c==0){
+                let r=Math.random()*255;
+                if (r<140){
+                    r=140;
+                }
+                PS.alpha(x,y,r);
+            }
             PS.data(x,y,mapList[mapNum][i]);
             x++;
             if (x>15){
@@ -384,7 +391,6 @@ var saveMap=function(mapNum){
         }
     }
 }
-
 
 PS.init = function( system, options ) {
     player.xcoord=4;
