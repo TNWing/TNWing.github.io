@@ -268,6 +268,10 @@ var getColor=function(i){
             color=[67, 255, 128];
             break;
         }
+        case 10:{//pale blue
+            color=[143, 170, 255];
+            break;
+        }
         default:{
             color=-1;
             break;
@@ -541,7 +545,9 @@ PS.keyDown = function( key, shift, ctrl, options ) {
             }
             break;
     }
-    PS.audioPlay("concrete_step"+(PS.random(4)).toString(), { fileTypes: ["wav"], path: "Audio/" });
+    if (player.horizontalDir!=0||player.verticalDir!=0){
+        PS.audioPlay("concrete_step"+(PS.random(4)).toString(), { fileTypes: ["wav"], path: "Audio/" });
+    }
     //check to see if the change to x is blocked
     //also will need to update old stuff
     let typeOld=PS.data(oldX,oldY)[1];
@@ -860,13 +866,13 @@ var reactorActions=function(oldX,oldY,newX,newY,data){
                     let nY=0;
                     let move=data[2];
                     let newData=data;
-                    newData[5]=newData[5]-1;
                     let hasMove=false;
                     if (move==1){
                         let moveX=newX+player.horizontalDir;
                         let moveY=newY+player.verticalDir;
                         if (moveX>=0 && moveX<=15 && moveY>=0 && moveY<=15){
                             if (PS.data(moveX,moveY)[1]==0) {//can move the block
+                                newData[5]=newData[5]-1;
                                 PS.audioPlay("push", { fileTypes: ["wav"], path: "Audio/" });
                                 let oldData=[0,0,[0],[0]];
                                 let oldData2=newData;
@@ -904,7 +910,7 @@ var reactorActions=function(oldX,oldY,newX,newY,data){
                                 roomStatus[mapNum]=roomStatus[mapNum]+=1;
                                 if (i==4){
                                     PS.data(newX,newY,[6,-2,[5],[0]]);
-                                    PS.color(newX,newY,getColor(6));
+                                    PS.color(newX,newY,getColor(10));
                                 }
                                 else{
                                     let coords=data[3];
