@@ -252,13 +252,21 @@ var updateStatus=function(){
                 case 5:{
                     PS.timerStop(myTimer);
                     roomStatus[7]=6;
-                    PS.statusText("Have fun");
+                    PS.statusText("Forever");
                     myTimer=PS.timerStart (90, updateStatus);
                     break;
                 }
                 case 6:{
                     PS.timerStop(myTimer);
-                    PS.statusText("You thief");
+                    roomStatus[7]=7;
+                    PS.statusText("Have fun");
+                    myTimer=PS.timerStart (90, updateStatus);
+                    break;
+                }
+                case 7:{
+                    PS.timerStop(myTimer);
+                    roomStatus[7]=7;
+                    PS.statusText("");
                     break;
                 }
             }
