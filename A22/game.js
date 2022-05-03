@@ -602,7 +602,12 @@ PS.keyDown = function( key, shift, ctrl, options ) {
                 mapBuild();
             }
             else{
-                PS.color(oldX,oldY,PS.COLOR_WHITE);
+                let r=Math.random()*255;
+                if (r<140){
+                    r=140;
+                }
+                PS.alpha(x,y,r);
+                PS.color(oldX,oldY,getColor(0));
             }
             player.xcoord=x;
             player.ycoord=y;
@@ -641,8 +646,15 @@ PS.keyDown = function( key, shift, ctrl, options ) {
                         let oldData2=[PS.data(newX,newY)[0],1,PS.data(newX,newY)[2],PS.data(moveX,moveY)[3]];
                         PS.color(moveX,moveY,getColor(PS.data(newX,newY)[0]));
                         PS.data(newX,newY,oldData);
-                        PS.color(newX,newY,PS.COLOR_WHITE);
+                        PS.alpha(oldX,oldY,255);
+                        let r=Math.random()*255;
+                        if (r<140){
+                            r=140;
+                        }
+                        PS.alpha(newX,newY,r);
+                        PS.color(newX,newY,getColor(0));
                         PS.data(moveX,moveY,oldData2);
+                        PS.alpha(moveX,moveY,255);
                     }
                     newX=oldX;
                     newY=oldY;
