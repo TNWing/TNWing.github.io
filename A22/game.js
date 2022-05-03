@@ -76,11 +76,58 @@ var completedPuzzles=[];
 //0 for finished
 //1 for easter egg found
 
+let eggC=0;
+var eggPickUpStatus=function(){
+    switch(eggC){
+        case 1:{
+            PS.statusText("I'll report you!");
+            break;
+        }
+        case 2:{
+            PS.statusText("Stop taking stuff you don't need!");
+            break;
+        }
+        case 3:{
+            PS.statusText("I hate you.");
+            break;
+        }
+        case 4:{
+            PS.statusText("You better stop now.");
+            break;
+        }
+        case 5:{
+            PS.statusText("...");
+            break;
+        }
+        case 6:{
+            PS.statusText("You'll regret that");
+            break;
+        }
+    }
+}
 
 var updateStatus=function(){
     let statusIndex=roomStatus[mapNum];
     switch(mapNum){
         case 0:{
+            switch (statusIndex){
+                case 0:{
+                    PS.statusText("The Beginning");
+                    break;
+                }
+                case 1:{
+                    PS.statusText("Hey! Get away from that egg!");
+                    break;
+                }
+                case 2:{
+                    eggPickUpStatus();
+                    break;
+                }
+                case 3:{
+                    PS.statusText("");
+                    break;
+                }
+            }
             break;
         }
         case 1:{
@@ -96,7 +143,7 @@ var updateStatus=function(){
                     break;
                 }
                 case 21:{
-                    PS.statusText("Fine! Take the stupid egg!");
+                    eggPickUpStatus();
                     PS.audioPlay("chicken", { fileTypes: ["wav"], path: "Audio/" });
                     roomStatus[3]=22;
                     break;
@@ -127,10 +174,81 @@ var updateStatus=function(){
                     break;
                 }
                 case 4:{
-                    PS.statusText("An easter egg");
+                    eggPickUpStatus();
                     break;
                 }
             }
+            break;
+        }
+        case 5:{
+            switch (statusIndex){
+                case 0:{
+                    PS.statusText("Can you make them match?");
+                    break;
+                }
+                case 1:{
+                    PS.statusText("You're not so bad after all");
+                    break;
+                }
+                case 2:{
+                    PS.statusText("There's nothing else here");
+                    break;
+                }
+                case 3:{
+                    PS.statusText("Are you kidding me?");
+                    break;
+                }
+                case 4:{
+                    PS.statusText("I take back what I said.");
+                    break;
+                }
+                case 5:{
+                    eggPickUpStatus();
+                    break;
+                }
+                case 6:{
+                    PS.statusText("");
+                    break;
+                }
+            }
+            break;
+        }
+        case 7:{
+            switch(statusIndex){
+                case 0: {
+                    PS.statusText("No, no more");
+                    roomStatus[7]=1;
+                    myTimer=PS.timerStart (120, updateStatus)
+                    break;
+                }
+                case 1: {
+                    PS.timerStop(myTimer);
+                    PS.statusText("You're too much trouble");
+                    roomStatus[7]=2;
+                    myTimer=PS.timerStart (120, updateStatus)
+                    break;
+                }
+                case 2: {
+                    PS.timerStop(myTimer);
+                    PS.statusText("Goodbye");
+                    roomStatus[7]=3;
+                    myTimer=PS.timerStart (60, updateStatus)
+                    break;
+                }
+                case 3: {
+                    PS.timerStop(myTimer);
+                    PS.statusText("");
+                    roomStatus[7]=4;
+                    myTimer=PS.timerStart (60, updateStatus)
+                    break;
+                }
+                case 4:{
+                    PS.timerStop(myTimer);
+                    PS.color(1,1,getColor(1));
+                    break;
+                }
+            }
+            break;
         }
     }
 }
@@ -139,7 +257,7 @@ var loadStatus=function(){//status changes based on completed puzzle or not
     let statusIndex=completedPuzzles[mapNum];
     switch(mapNum){
         case 0: {
-            PS.statusText("A Beginning");
+            updateStatus();
             break;
         }
         case 1: {
@@ -192,6 +310,9 @@ var loadStatus=function(){//status changes based on completed puzzle or not
         case 4:{
             updateStatus();
         }
+        case 5:{
+            updateStatus();
+        }
     }
 }
 //idea: use map copy to add to map list, and just utilize mapList
@@ -199,7 +320,7 @@ var loadStatus=function(){//status changes based on completed puzzle or not
 var mapInit=function(){
     mapList.push(mapCopy(mapstart));
     roomStatus.push(0);
-    completedPuzzles.push(-1);
+    completedPuzzles.push(0);
     mapList.push(mapCopy(mapPirate));
     roomStatus.push(0);
     completedPuzzles.push(-1);
@@ -212,6 +333,14 @@ var mapInit=function(){
     mapList.push(mapCopy(mapChain1));
     roomStatus.push(0);
     completedPuzzles.push(-1);
+    mapList.push(mapCopy(mapContrast));
+    roomStatus.push(0);
+    completedPuzzles.push(-1);
+    mapList.push(mapCopy(mapEnd));
+    roomStatus.push(0);
+    completedPuzzles.push(-1);
+    mapList.push(mapCopy(mapTrueEnd));
+    roomStatus.push(0);
 }
 
 var player={//player represented by CYAN
@@ -278,6 +407,17 @@ var getColor=function(i){
             color=[143, 170, 255];
             break;
         }
+        case 11:{//a weird dark blue
+            color=[0, 87, 94];
+        }
+        case 12:{//dark purple
+            color=[94, 34, 89];
+            break;
+        }
+        case 13:{
+            color=PS.COLOR_WHITE;
+            break;
+        }
         default:{
             color=-1;
             break;
@@ -300,7 +440,7 @@ var mapBuild=function() {//why is levelbuild being called const
     resetGrid();
     loadStatus();
     PS.border ( PS.ALL, PS.ALL,0)
-    if (mapList[mapNum]!=null){
+    if (mapList[mapNum]!=null && mapNum!=7){
         let x=0;
         let y=0;
         for (let i=0;i<mapList[mapNum].length;i++){
@@ -321,7 +461,74 @@ var mapBuild=function() {//why is levelbuild being called const
             }
         }
     }
-    setBorderEdges()
+    if (mapNum==6){
+        buildEnd();
+    }
+    setBorderEdges();
+    if (mapNum==7){
+        playerMove=false;
+        PS.gridSize(3,3);
+        PS.data(PS.ALL,PS.ALL,0);
+        PS.color(PS.ALL,PS.ALL,PS.COLOR_WHITE);
+        for (let y=0;y<3;y++){
+            for (let x=0;x<3;x++){
+                let i=x+y*3;
+                let col=mapList[mapNum][i][0];
+                PS.color(x,y,getColor(col));//why all balck
+                if (col==0){
+                    let r=Math.random()*255;
+                    if (r<140){
+                        r=140;
+                    }
+                    PS.alpha(x,y,r);
+                }
+                PS.data(x,y,mapList[mapNum][i]);
+            }
+        }
+        updateStatus();
+        PS.audioSt
+    }
+
+}
+
+var buildEnd=function(){
+    let eggCount=0;
+    if (completedPuzzles[0]==1){
+        PS.data(5,2,[12,1,[0,0],[0]]);
+        PS.color(5,2,getColor(12));
+        eggCount++;
+    }
+    if (completedPuzzles[1]==1){
+        PS.data(5,13,[12,1,[0,0],[0]]);
+        PS.color(5,13,getColor(12));
+        eggCount++;
+    }
+    if (completedPuzzles[2]==1){
+        PS.data(2,10,[12,1,[0,0],[0]]);
+        PS.color(2,10,getColor(12));
+        eggCount++;
+    }
+    if (completedPuzzles[3]==1){
+        PS.data(10,2,[12,1,[0,0],[0]]);
+        PS.color(10,2,getColor(12));
+        eggCount++;
+    }
+    if (completedPuzzles[4]==1){
+        PS.data(10,13,[12,1,[0,0],[0]]);
+        PS.color(10,13,getColor(12));
+        eggCount++;
+    }
+    if (completedPuzzles[5]==1){
+        PS.data(13,5,[12,1,[0,0],[0]]);
+        PS.color(13,5,getColor(12));
+        eggCount++;
+    }
+    if (eggCount==6){
+        PS.data(7,0,[-1,-1,[7,[1,1]],[0]]);
+        PS.data(8,0,[-1,-1,[7,[1,1]],[0]]);
+        PS.color(7,0,getColor(-1));
+        PS.color(8,0,getColor(-1));
+    }
 }
 
 var setBorderEdges=function(){
@@ -470,7 +677,7 @@ This function doesn't have to do anything. Any value returned is ignored.
 [data : *] = The JavaScript value previously associated with bead(x, y) using PS.data(); default = 0.
 [options : Object] = A JavaScript object with optional data properties; see API documentation for details.
 */
-var flashTimer;
+var myTimer
 PS.enter = function( x, y, data, options ) {
 	// Uncomment the following code line to inspect x/y parameters:
 	// Add code here for when the mouse cursor/touch enters a bead.
@@ -516,190 +723,215 @@ This function doesn't have to do anything. Any value returned is ignored.
 [options : Object] = A JavaScript object with optional data properties; see API documentation for details.
 */
 
-
+let playerMove=true;
 PS.keyDown = function( key, shift, ctrl, options ) {
 	// Uncomment the following code line to inspect first three parameters:
-    let oldX=player.xcoord;
-    let oldY=player.ycoord;
-    let newX=player.xcoord;
-    let newY=player.ycoord;
-    player.horizontalDir=0;
-    player.verticalDir=0;
-    switch(key){
-        case 1008:
-        case 115:
-            newY+=1;
-            player.verticalDir=1;
-            if (newY>=15){
-                newY=15;
+    if (playerMove){
+        let oldX=player.xcoord;
+        let oldY=player.ycoord;
+        let newX=player.xcoord;
+        let newY=player.ycoord;
+        player.horizontalDir=0;
+        player.verticalDir=0;
+        switch(key){
+            case 1008:
+            case 115:
+                newY+=1;
+                player.verticalDir=1;
+                if (newY>=15){
+                    newY=15;
+                }
+                break;
+            case 1007:
+            case 100:
+                newX+=1;
+                player.horizontalDir=1;
+                if (newX>=15){
+                    newX=15;
+                }
+                break;
+            case 1006:
+            case 119:
+                newY-=1;
+                player.verticalDir=-1;
+                if (newY<=0){
+                    newY=0;
+                }
+                break;
+            case 1005://left or a
+            case 97:
+                newX-=1;
+                player.horizontalDir=-1;
+                if (newX<=0){
+                    newX=0;
+                }
+                break;
+        }
+        if (player.horizontalDir!=0||player.verticalDir!=0){
+            PS.audioPlay("concrete_step"+(PS.random(4)).toString(), { fileTypes: ["wav"], path: "Audio/", volume:0.2 });
+        }
+        //check to see if the change to x is blocked
+        //also will need to update old stuff
+        let typeOld=PS.data(oldX,oldY)[1];
+        adjustCurrentBead(oldX,oldY,typeOld)
+        let type=PS.data(newX,newY)[1];
+        //doesn't do multiple types i think
+        switch (type){
+            case -2:{//egg collectible
+                PS.color(oldX,oldY,getColor(PS.data(oldX,oldY)[0]));
+                PS.color(newX,newY,PS.COLOR_CYAN);
+                PS.data(newX,newY,[0,0,[0],[0]]);
+                player.xcoord=newX;
+                player.ycoord=newY;
+                eggC++;
+                PS.audioPlay("chicken", { fileTypes: ["wav"], path: "Audio/" });
+                switch(mapNum){
+                    case 0:{
+                        roomStatus[0]=2;
+                        updateStatus();
+                        roomStatus[0]=3;
+                        break;
+                    }
+                    case 1:{
+                        //roomStatus[1];
+                        break;
+
+                    }
+                    case 2:{
+                        eggPickUpStatus();
+                        break;
+                    }
+                    case 5:{
+                        roomStatus[5]=5;
+                        updateStatus();
+                        roomStatus[5]=6;
+                        break;
+                    }
+                }
+                completedPuzzles[mapNum]=1;
+                break;
             }
-            break;
-        case 1007:
-        case 100:
-            newX+=1;
-            player.horizontalDir=1;
-            if (newX>=15){
-                newX=15;
-            }
-            break;
-        case 1006:
-        case 119:
-            newY-=1;
-            player.verticalDir=-1;
-            if (newY<=0){
-                newY=0;
-            }
-            break;
-        case 1005://left or a
-        case 97:
-            newX-=1;
-            player.horizontalDir=-1;
-            if (newX<=0){
-                newX=0;
-            }
-            break;
-    }
-    if (player.horizontalDir!=0||player.verticalDir!=0){
-        PS.audioPlay("concrete_step"+(PS.random(4)).toString(), { fileTypes: ["wav"], path: "Audio/", volume:0.2 });
-    }
-    //check to see if the change to x is blocked
-    //also will need to update old stuff
-    let typeOld=PS.data(oldX,oldY)[1];
-    adjustCurrentBead(oldX,oldY,typeOld)
-    let type=PS.data(newX,newY)[1];
-    //doesn't do multiple types i think
-    switch (type){
-        case -2:{//egg collectible
-            PS.color(oldX,oldY,getColor(PS.data(oldX,oldY)[0]));
-            PS.color(newX,newY,PS.COLOR_CYAN);
-            PS.data(newX,newY,[0,0,[0],[0]]);
-            player.xcoord=newX;
-            player.ycoord=newY;
-            PS.audioPlay("chicken", { fileTypes: ["wav"], path: "Audio/" });
-            switch(mapNum){
-                case 2:{
-                    PS.statusText("Stop taking stuff you don't need!");
-                    completedPuzzles[2]=1;
+            case -1:{//teleporter
+                if (typeOld==-1){//this part doesnt work, not priority though// && (oldX!=newX||oldY!=oldY)
+                    PS.color(oldX,oldY,getColor(PS.data(oldX,oldY)[0]));
+                    PS.color(newX,newY,PS.COLOR_CYAN);
+                    player.xcoord=newX;
+                    player.ycoord=newY;
                     break;
                 }
+                saveMap(mapNum);
+                let num=PS.data(newX,newY)[2][0];
+                let x=PS.data(newX,newY)[2][1][0];
+                let y=PS.data(newX,newY)[2][1][1];
+                if (mapNum!=num){//move to new map
+                    mapNum=num;
+                    mapBuild();
+                }
+                else{
+                    let r=Math.random()*255;
+                    if (r<140){
+                        r=140;
+                    }
+                    PS.alpha(x,y,r);
+                    PS.color(oldX,oldY,getColor(0));
+                }
+                player.xcoord=x;
+                player.ycoord=y;
+                PS.color(player.xcoord,player.ycoord,PS.COLOR_CYAN);
+                break;
             }
-            break;
-        }
-        case -1:{//teleporter
-            if (typeOld==-1){//this part doesnt work, not priority though// && (oldX!=newX||oldY!=oldY)
+            //start to save data changes
+            case 0:{//no data should change as it was just a blank tile before
+                //gets the default misc_arrays
+                let oldData=PS.data(oldX,oldY)[3];
+                let oldData2=PS.data(newX,newY)[3];
+                let typeOld=PS.data(oldX,oldY)[1];
+                adjustCurrentBead(oldX,oldY,typeOld)
+                //PS.data(oldX,oldY,oldData)
                 PS.color(oldX,oldY,getColor(PS.data(oldX,oldY)[0]));
+                PS.color(newX,newY,PS.COLOR_CYAN);
+                player.xcoord=newX;
+                player.ycoord=newY;
+                //S.data(newX,newY)
+                break;
+            }
+            case 1:{
+                if (PS.data(newX,newY)[2][1]==0){//unmovable wall
+                    newX=oldX;
+                    newY=oldY;
+                }
+                else{//need to move wall
+                    //also, need to check to see if the wall is at the edge of the screen, so
+                    //change data for old tile to become standard tile
+                    let moveX=newX+player.horizontalDir;
+                    let moveY=newY+player.verticalDir;
+                    if (moveX>=0 && moveX<=15 && moveY>=0 && moveY<=15){
+                        if (PS.data(moveX,moveY)[1]==0) {//can move the block
+                            let puzzleNum=PS.data(newX,newY)[2][0];
+                            PS.audioPlay("push", { fileTypes: ["wav"], path: "Audio/", volume:0.5 });
+                            let oldData=[0,0,[0],PS.data(newX,newY)[3]];
+                            let oldData2=[PS.data(newX,newY)[0],1,PS.data(newX,newY)[2],PS.data(moveX,moveY)[3]];
+                            PS.color(moveX,moveY,getColor(PS.data(newX,newY)[0]));
+                            PS.data(newX,newY,oldData);
+                            PS.alpha(oldX,oldY,255);
+                            let r=Math.random()*255;
+                            if (r<140){
+                                r=140;
+                            }
+                            PS.alpha(newX,newY,r);
+                            PS.color(newX,newY,getColor(0));
+                            PS.data(moveX,moveY,oldData2);
+                            PS.alpha(moveX,moveY,255);
+                            if (puzzleNum!=0){
+                                checkPuzzle(puzzleNum);
+                            }
+                        }
+                        newX=oldX;
+                        newY=oldY;
+                    }
+                }
+                break;
+            }
+            case 2:{
+                PS.audioPlay("tile_step"+(PS.random(3)).toString(), {  path: "Audio/", volume:0.2 });
+                PS.color(oldX,oldY,getColor(PS.data(oldX,oldY)[0]));
+                //PS.debug(newX+","+newY+"\t");
+                if (PS.data(newX,newY)[0]==4){
+                    let entry3=[];
+                    let dataArr=PS.data(newX,newY)[2];
+                    let puzzleNum=dataArr.shift();
+                    dataArr.shift();
+                    entry3.push(puzzleNum);
+                    entry3.push(5);
+                    for (let i=0;i<dataArr.length;dataArr++){
+                        entry3.push(dataArr[i]);
+                    }
+                    PS.data(newX,newY,[5,2,entry3,[0]]);
+                }
+                else {
+                    let entry3=[];
+                    let dataArr=PS.data(newX,newY)[2];
+                    let puzzleNum=dataArr.shift();
+                    dataArr.shift();
+                    entry3.push(puzzleNum);
+                    entry3.push(4);
+                    for (let i=0;i<dataArr.length;dataArr++){
+                        entry3.push(dataArr[i]);
+                    }
+                    PS.data(newX,newY,[4,2,entry3,[0]]);
+                }
                 PS.color(newX,newY,PS.COLOR_CYAN);
                 player.xcoord=newX;
                 player.ycoord=newY;
                 break;
             }
-            saveMap(mapNum);
-            let num=PS.data(newX,newY)[2][0];
-            let x=PS.data(newX,newY)[2][1][0];
-            let y=PS.data(newX,newY)[2][1][1];
-            if (mapNum!=num){//move to new map
-                mapNum=num;
-                mapBuild();
+            case 4:{
+                reactorActions(oldX,oldY,newX,newY,PS.data(newX,newY)[2]);
+                break;
             }
-            else{
-                let r=Math.random()*255;
-                if (r<140){
-                    r=140;
-                }
-                PS.alpha(x,y,r);
-                PS.color(oldX,oldY,getColor(0));
-            }
-            player.xcoord=x;
-            player.ycoord=y;
-            PS.color(player.xcoord,player.ycoord,PS.COLOR_CYAN);
-            break;
-        }
-        //start to save data changes
-        case 0:{//no data should change as it was just a blank tile before
-            //gets the default misc_arrays
-            let oldData=PS.data(oldX,oldY)[3];
-            let oldData2=PS.data(newX,newY)[3];
-            let typeOld=PS.data(oldX,oldY)[1];
-            adjustCurrentBead(oldX,oldY,typeOld)
-            //PS.data(oldX,oldY,oldData)
-            PS.color(oldX,oldY,getColor(PS.data(oldX,oldY)[0]));
-            PS.color(newX,newY,PS.COLOR_CYAN);
-            player.xcoord=newX;
-            player.ycoord=newY;
-            //S.data(newX,newY)
-            break;
-        }
-        case 1:{
-            if (PS.data(newX,newY)[2][1]==0){//unmovable wall
-                newX=oldX;
-                newY=oldY;
-            }
-            else{//need to move wall
-                //also, need to check to see if the wall is at the edge of the screen, so
-                //change data for old tile to become standard tile
-                let moveX=newX+player.horizontalDir;
-                let moveY=newY+player.verticalDir;
-                if (moveX>=0 && moveX<=15 && moveY>=0 && moveY<=15){
-                    if (PS.data(moveX,moveY)[1]==0) {//can move the block
-                        PS.audioPlay("push", { fileTypes: ["wav"], path: "Audio/", volume:0.5 });
-                        let oldData=[0,0,[0],PS.data(newX,newY)[3]];
-                        let oldData2=[PS.data(newX,newY)[0],1,PS.data(newX,newY)[2],PS.data(moveX,moveY)[3]];
-                        PS.color(moveX,moveY,getColor(PS.data(newX,newY)[0]));
-                        PS.data(newX,newY,oldData);
-                        PS.alpha(oldX,oldY,255);
-                        let r=Math.random()*255;
-                        if (r<140){
-                            r=140;
-                        }
-                        PS.alpha(newX,newY,r);
-                        PS.color(newX,newY,getColor(0));
-                        PS.data(moveX,moveY,oldData2);
-                        PS.alpha(moveX,moveY,255);
-                    }
-                    newX=oldX;
-                    newY=oldY;
-                }
-            }
-            break;
-        }
-        case 2:{
-            PS.audioPlay("tile_step"+(PS.random(3)).toString(), {  path: "Audio/", volume:0.2 });
-            PS.color(oldX,oldY,getColor(PS.data(oldX,oldY)[0]));
-            //PS.debug(newX+","+newY+"\t");
-            if (PS.data(newX,newY)[0]==4){
-                let entry3=[];
-                let dataArr=PS.data(newX,newY)[2];
-                let puzzleNum=dataArr.shift();
-                dataArr.shift();
-                entry3.push(puzzleNum);
-                entry3.push(5);
-                for (let i=0;i<dataArr.length;dataArr++){
-                    entry3.push(dataArr[i]);
-                }
-                PS.data(newX,newY,[5,2,entry3,[0]]);
-            }
-            else {
-                let entry3=[];
-                let dataArr=PS.data(newX,newY)[2];
-                let puzzleNum=dataArr.shift();
-                dataArr.shift();
-                entry3.push(puzzleNum);
-                entry3.push(4);
-                for (let i=0;i<dataArr.length;dataArr++){
-                    entry3.push(dataArr[i]);
-                }
-                PS.data(newX,newY,[4,2,entry3,[0]]);
-            }
-            PS.color(newX,newY,PS.COLOR_CYAN);
-            player.xcoord=newX;
-            player.ycoord=newY;
-            break;
-        }
-        case 4:{
-            reactorActions(oldX,oldY,newX,newY,PS.data(newX,newY)[2]);
-            break;
         }
     }
+
 
 	// Add code here for when a key is pressed.
 };
@@ -725,7 +957,21 @@ var adjustCurrentBead=function(x,y,type){
 //9
 var checkPuzzle=function(i){
     switch(i){
+        case 1:{
+            let data=PS.data(12,13);
+            if (data[1]==1){
+                roomStatus[0]=1;
+                PS.statusText("Hey! Don't touch my egg!")
+                PS.data(12,13,[3,1,[0,0],[0]]);
+                PS.data(10,12,[6,-2,[3],[0]]);
+                PS.color(10,12,getColor(6));
+            }
+            break;
+        }
         case 2:{
+            if (completedPuzzles[mapNum]<1){
+
+            }
             //first, check for standard win
             let allBeads=[[5,3],[6,4],[7,5],[8,6],[9,7],[9,3],[8,4],[6,6],[5,7],[6,3],[7,3],[8,3],
                 [5,4],[7,4],[9,4],
@@ -786,26 +1032,86 @@ var checkPuzzle=function(i){
                     }
                 }
                 if (valid){
-                    PS.audioPlay("chicken", { fileTypes: ["wav"], path: "Audio/" });
                     PS.statusText("Hey! You weren't supposed to find that!");
-                    completedPuzzles[1]=1;
                     //dig up treasure
                     for (let i=0;i<XbeadList.length;i++){
                         let arr=XbeadList[i];
                         PS.data(arr[0],arr[1],[0,0,[0],[0]]);
-                        PS.color(arr[0],arr[1],PS.COLOR_WHITE);
+                        let r=Math.random()*255;
+                        if (r<140){
+                            r=140;
+                        }
+                        PS.alpha(arr[0],arr[1],r);
+                        PS.color(arr[0],arr[1],getColor(0));
                     }
                     for (let i=0;i<otherBeads.length;i++){
                         let arr=otherBeads[i];
                         PS.data(arr[0],arr[1],[0,0,[0],[0]]);
-                        PS.color(arr[0],arr[1],PS.COLOR_WHITE);
+                        let r=Math.random()*255;
+                        if (r<140){
+                            r=140;
+                        }
+                        PS.alpha(arr[0],arr[1],r);
+                        PS.color(arr[0],arr[1],getColor(0));
                     }
                     let t=4;
-                    flashTimer=PS.timerStart(t,beadFlash,t,7,5,-1,0,60,1);
-                    inventory.push("TREASURE");
+                    PS.data(7,5,[-1,-2,[2],[0]]);
+                    PS.color(7,5,getColor(-1));
                 }
                 break;
             }
+        }
+        case 6:{
+            if (completedPuzzles[mapNum]<1){
+                //x is 3 and 4, 12 and 11
+                let staticBeads=[[3,2],[4,3],[3,4],[3,5],[4,6],[3,8],[3,9],[3,10],];
+                let modBeads=[[12,2],[11,3],[12,4],[12,5],[11,6],[12,8],[12,9],[12,10],];
+                let standardValid=true;
+                for (let s=0;s<modBeads.length;s++){
+                    let arr=modBeads[s];
+                    let staticC=PS.data(staticBeads[s][0],staticBeads[s][1])[0];
+                    if (PS.data(arr[0],arr[1])[0]!=staticC){
+                        standardValid=false;
+                        break;
+                    }
+                }
+                if (standardValid){
+                    completedPuzzles[1]=0;
+                    if (roomStatus[mapNum]==0){
+                        roomStatus[mapNum]=1;
+                        updateStatus();
+                        roomStatus[mapNum]=2;
+                    }
+                }
+                else {
+                    //then, maybe secret win
+                    let secretValid=true;
+                    for (let x=0;x<modBeads.length;x++){
+                        let arr=modBeads[x];
+                        let staticC=PS.data(staticBeads[x][0],staticBeads[x][1])[0];
+                        if (PS.data(arr[0],arr[1])[0]==staticC){
+                            secretValid=false;
+                            break;
+                        }
+                    }
+                    if (secretValid){
+                        //spawn egg
+                        PS.data(15,8,[12,-2,[6],[0]]);
+                        PS.color(15,8,getColor(11))
+                        //update status
+                        if (roomStatus[mapNum]==2){
+                            roomStatus[mapNum]=4;
+                        }
+                        else{
+                            roomStatus[mapNum]=3;
+                        }
+                        updateStatus();
+                    }
+
+                }
+            }
+
+            break;
         }
     }
 }
@@ -831,7 +1137,12 @@ var reactorActions=function(oldX,oldY,newX,newY,data){
                 let delX=data[i+2][0];
                 let delY=data[i+2][1];
                 PS.data(delX,delY,[0,0,[0],[0]]);
-                PS.color(delX,delY,PS.COLOR_WHITE);
+                let r=Math.random()*255;
+                if (r<140){
+                    r=140;
+                }
+                PS.alpha(delX,delY,r);
+                PS.color(delX,delY,getColor(0));
             }
             switch(mapNum){
                 case 2:{
@@ -855,6 +1166,7 @@ var reactorActions=function(oldX,oldY,newX,newY,data){
                         if (newX==12){
                             roomStatus[3]=roomStatus[3]+1;
                             completedPuzzles[3]=1;
+                            eggC++;
                             updateStatus();
                         }
                         else if (completedPuzzles[3]!=1){
@@ -904,7 +1216,12 @@ var reactorActions=function(oldX,oldY,newX,newY,data){
                                 let oldData2=newData;
                                 PS.color(moveX,moveY,getColor(3));
                                 PS.data(newX,newY,oldData);
-                                PS.color(newX,newY,PS.COLOR_WHITE);
+                                let r=Math.random()*255;
+                                if (r<140){
+                                    r=140;
+                                }
+                                PS.alpha(newX,newY,r);
+                                PS.color(newX,newY,getColor(0));
                                 let updateData=[3,4];
                                 updateData.push(oldData2);
                                 updateData.push([0]);
@@ -949,20 +1266,6 @@ var reactorActions=function(oldX,oldY,newX,newY,data){
                     break;
                 }
             }
-        }
-    }
-
-}
-var beadFlash=function(t,x,y,c1,c2,r,i){
-    PS.timerStop(flashTimer);
-    if (r>0){
-        if (i==1){
-            PS.color(x,y,getColor(c2));
-            flashTimer=PS.timerStart(t,beadFlash,t,x,y,c1,c2,r-1,0);
-        }
-        else{
-            PS.color(x,y,getColor(c1));
-            flashTimer=PS.timerStart(t,beadFlash,t,x,y,c1,c2,r-1,1);
         }
     }
 }
