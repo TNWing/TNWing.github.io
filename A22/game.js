@@ -648,7 +648,7 @@ PS.init = function( system, options ) {
     PS.audioLoad("tile_step2", { path: "Audio/" });
     PS.audioLoad("tile_step3", { path: "Audio/" });
     PS.audioLoad("music", { fileTypes: ["mp3"], path: "Audio/" })
-    PS.audioPlay("music", {fileTypes: ["mp3"], path: "Audio/"})
+    PS.audioPlay("music", {fileTypes: ["mp3"], path: "Audio/", loop: true})
     PS.color(player.xcoord,player.ycoord,PS.COLOR_CYAN);
 };
 
