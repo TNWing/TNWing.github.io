@@ -216,29 +216,49 @@ var updateStatus=function(){
         case 7:{
             switch(statusIndex){
                 case 0: {
-                    PS.statusText("No, no more");
+                    PS.statusText("Congrats");
                     roomStatus[7]=1;
                     myTimer=PS.timerStart (120, updateStatus)
                     break;
                 }
                 case 1: {
                     PS.timerStop(myTimer);
-                    PS.statusText("You're too much trouble");
+                    PS.statusText("You've persisted through my trials");
                     roomStatus[7]=2;
                     myTimer=PS.timerStart (120, updateStatus)
                     break;
                 }
                 case 2: {
                     PS.timerStop(myTimer);
-                    PS.statusText("Goodbye");
+                    PS.statusText("And found all my eggs");
                     roomStatus[7]=3;
-                    myTimer=PS.timerStart (90, updateStatus)
+                    myTimer=PS.timerStart (90, updateStatus);
                     break;
                 }
                 case 3: {
                     PS.timerStop(myTimer);
-                    PS.statusText("");
-                    PS.color(1,1,getColor(1));
+                    roomStatus[7]=4;
+                    PS.statusText("So here's your reward");
+                    myTimer=PS.timerStart (90, updateStatus);
+                    break;
+                }
+                case 4:{
+                    PS.timerStop(myTimer);
+                    roomStatus[7]=5;
+                    PS.statusText("You get to stay in this box");
+                    myTimer=PS.timerStart (90, updateStatus);
+                    break;
+                }
+                case 5:{
+                    PS.timerStop(myTimer);
+                    roomStatus[7]=6;
+                    PS.statusText("Have fun");
+                    myTimer=PS.timerStart (90, updateStatus);
+                    break;
+                }
+                case 6:{
+                    PS.timerStop(myTimer);
+                    PS.statusText("You thief");
                     break;
                 }
             }
