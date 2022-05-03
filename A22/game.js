@@ -232,18 +232,12 @@ var updateStatus=function(){
                     PS.timerStop(myTimer);
                     PS.statusText("Goodbye");
                     roomStatus[7]=3;
-                    myTimer=PS.timerStart (60, updateStatus)
+                    myTimer=PS.timerStart (90, updateStatus)
                     break;
                 }
                 case 3: {
                     PS.timerStop(myTimer);
                     PS.statusText("");
-                    roomStatus[7]=4;
-                    myTimer=PS.timerStart (60, updateStatus)
-                    break;
-                }
-                case 4:{
-                    PS.timerStop(myTimer);
                     PS.color(1,1,getColor(1));
                     break;
                 }
