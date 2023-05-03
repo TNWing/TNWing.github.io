@@ -82,24 +82,25 @@
   <br>
   <h1>WARNING! WARNING!</h1>
   <h1>Informational Portfolio Rant Incoming!</h1>
-  <h2>TLDR: Spent way too much time trying to fix bugs. Several of the major bugs had no logic behind them, and in some cases were an issue with the 5.1 version of Unreal</h2>
+  <h2>TLDR: Spent way too much time trying to fix bugs. Several of the major bugs had no logic behind them, and in some cases were an issue with the 5.1 version of Unreal.</h2>
   <br>
   
   <p>Let's start off with this: Unreal 5.1 apparently has several bugs regarding input.</p>
   <p>One of the first things I did was making sure my code could detect user input. I went through various methods, and decided to use Unreal's new Enhanced Input System. It was supposed to be an improvement, allowing for more complex and smoother controls.</p>
   <p>I followed the guide, and got my input working! Kinda.</p>
   <p>See, Unreal was able to detect the input with Enhanced Input. However, it couldn't get the direction of the input. No matter which direction I tilted my joystick, it always registered the movement vector as (0,0).</p>
-  <p>I panicked. I couldn't really manage input if my code couldn't tell what the input was. I poured through various posts on the forums, and even consulted a few tutorials. Despite following them near perfectly, nothing seemed to work</p>
+  <p>I panicked. I couldn't really manage input if my code couldn't tell what the input was. I poured through various posts on the forums, and even consulted a few tutorials. Despite following them near perfectly, nothing seemed to work.</p>
   <p>Then I noticed, I didn't follow exactly. See, the tutorial I was consulting was for a slightly earlier version of Unreal.
   Their code was practically identical to mine, except instead of outputing a vector for the x and y axis, the older version of the function outputed two separate float values.</p>
-  <p>So in essence, I wasted a lot of time trying to debug my code only to learn that I couldn't really fix it</p>
+  <p>So in essence, I wasted a lot of time trying to debug my code only to learn that I couldn't really fix it.</p>
   <p>I relented and did a bit of a workaround. Instead of relying entirely on Enhanced Input, I simply used the system as a trigger.
   Then, I grabbed the actual directional vector through other blueprint methods. It was a bit messy and I didn't like it, but it worked.</p>
   
   <br>
   
   <p>While I worked on this, I received a message asking if I could get a 1 keyboard, 1 controller setup working. While our plan was to have both players use controllers,
-  it would be hard to test 2 controllers due to Unreal's restrictions on what controllers it could work with. (Note: I spent hours trying to get a xbox controller emulator to work with my logitech controller, and only managed to get it to work sometimes).</p>
+  it would be hard to test 2 controllers due to Unreal's restrictions on what controllers it could work with.
+  (Note: I spent hours trying to get a xbox controller emulator to work with my logitech controller, and only managed to get it to work sometimes)</p>
   <p>I agreed, since I thought it wouldn't be problematic. After all, Unreal already has this function to help with that:</p>
   <img src="skip_gamepad.png" alt="Unreal Input Setting">
   <p>Except it didn't.</p>
@@ -115,13 +116,13 @@
   <p>Are you kidding me?</p>
   <p>So I almost ruined our alpha with my changes. Thankfully, my changes were reverted so the alpha was still playable.</p>
   <p>I was really curious as to why my code broke the game. I dug around and noticed that the code works fine...when the level it's associated with is the first level that is created. When loading in from a different level, the code breaks.</p>
-  <p>That answered what the trigger is. But it didn't answer why.</p>
+  <p>That answered what the trigger was. But it didn't answer why.</p>
   <p>I got to work. I slowly dug through all my code and and mentally tracked the progress of the code running. Everything seemed fine, but maybe I missed something.</p>
   <p>I started to insert print statements to determine where exactly the code goes wrong. After a long time, I found something.</p>
   <img src="spawning.png" alt="Character Spawning">
   <p>The code above determines which character to spawn for each player. The code for the second player worked fine. However, the first player code had issues.</p>
   
-  br>
+  <br>
   
   <img src="spawning_bug.png" alt="Spawning Bug">
   <p>This image handles the actual spawning. Given the number id of the player and their chosen character, spawn the given character at a designated location. Simple enough.</p>
@@ -132,7 +133,7 @@
   <p>On a whim, I decided to drag the default pin to follow the same path as 0.</p>
   <p>It worked.</p>
   <p>"Oh so what was the value that player 1 was receiving?" I asked myself. I put a print statement to display the character number that lead to the default path.</p>
-  <p>It printed 0</p>
+  <p>It printed 0.</p>
   
   <br>
   
@@ -151,7 +152,8 @@
   
   <h1>UI Diagram</h1>
   <img src="uml.png" alt="Diagram">
-  <p>A rough diagram showing the flow of controls for the UI. Note that as shown in the diagram, player 1 is the only one to control the main menu. Furthermore, "Start Game" can only be selected once both players have confirmed their character selection.</p>
+  <p>A rough diagram showing the flow of controls for the UI. Note that as shown in the diagram, player 1 is the only one to control the main menu.
+  Furthermore, "Start Game" can only be selected once both players have confirmed their character selection.</p>
   
   <br>
   
